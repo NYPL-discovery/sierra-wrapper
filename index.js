@@ -87,12 +87,12 @@ exports.auth = (cb) => {
           exports.authorizedTimestamp = Math.floor(Date.now() / 1000)
 
           // if that worked we want to keep the token always up to date, so request a new one every halflife
-          clearInterval(exports.authorizedTimer)
-          exports.authorizedTimer = setInterval(() => {
-            exports.auth(() => {
-              // do something on the refresh?
-            })
-          }, ((JSON.parse(body)['expires_in'] / 2) * 1000))
+          // clearInterval(exports.authorizedTimer)
+          // exports.authorizedTimer = setInterval(() => {
+          //   exports.auth(() => {
+          //     // do something on the refresh?
+          //   })
+          // }, ((JSON.parse(body)['expires_in'] / 2) * 1000))
 
           if (cb) cb(null, JSON.parse(body)['access_token'])
         } else {
