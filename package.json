@@ -1,6 +1,6 @@
 {
   "name": "sierra-wrapper",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A node wrapper for Innovative's Sierra API v2",
   "main": "index.js",
   "scripts": {
@@ -20,5 +20,9 @@
     "mocha": "^2.5.3",
     "should": "^9.0.2",
     "standard": "^7.1.2"
+  },
+  "dependencies": {
+    "highland": "^2.8.1",
+    "request": "^2.72.0"
   }
 }

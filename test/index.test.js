@@ -3,7 +3,8 @@
 var should = require('should') // eslint-disable-line
 var wrapper = require('../index.js')
 
-describe('utils', () => {
+describe('Tests', function () {
+  this.timeout(150000)
   it('load config from file', () => {
     wrapper.loadConfig('./test/config.test.json')
     wrapper.credsKey.should.equal('key')
@@ -15,5 +16,91 @@ describe('utils', () => {
     wrapper.credsKey.should.equal('key')
     wrapper.credsSecret.should.equal('secret')
     wrapper.credsBase.should.equal('base')
+  })
+
+  it('It should request an auth token - and work', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((error, results) => {
+      if (error) console.log(error)
+      results.should.be.type('string')
+      wrapper.authorizedTimestamp.should.be.type('number')
+      done()
+    })
+  })
+  it('It should request an auth token - and not work', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.credsSecret = 'BANANANAANANANANAN'
+    wrapper.auth((error, results) => {
+      if (error) console.log(error)
+      results.should.equal(false)
+      wrapper.authorizedTimestamp.should.equal(false)
+      done()
+    })
+  })
+
+  it('It should request a single full bib record', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestSingleBib('17292415', (errorBibReq, results) => {
+        if (errorBibReq) console.log(errorBibReq)
+        results.data.total.should.equal(1)
+        done()
+      })
+    })
+  })
+
+  it('It should request the items associated with a bib id - One item', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestBibItems('17292415', (errorBibReq, results) => {
+        if (errorBibReq) console.log(errorBibReq)
+        results.data.total.should.equal(2)
+        done()
+      })
+    })
+  })
+
+  it('It should request the items associated with a bib id - A lot of items', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestBibItems('10568020', (errorBibReq, results) => {
+        if (errorBibReq) console.log(errorBibReq)
+        results.data.total.should.equal(1029)
+        done()
+      })
+    })
+  })
+
+  it('It should request the items associated with a bib id - A lot of items 2', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestBibItems('14628261', (errorBibReq, results) => {
+        if (errorBibReq) console.log(errorBibReq)
+        results.data.total.should.equal(813)
+        done()
+      })
+    })
   })
 })
