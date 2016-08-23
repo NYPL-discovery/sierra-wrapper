@@ -172,7 +172,7 @@ exports.requestBibItems = (bibId, cb) => {
           if (response.statusCode && response.statusCode === 200) {
             if (requestItemsCb) requestItemsCb(null, JSON.parse(body))
           } else {
-            if (requestItemsCb) requestItemsCb(body, false)
+            if (requestItemsCb) requestItemsCb(null, false)
           }
         })
     }

@@ -74,20 +74,20 @@ describe('Tests', function () {
     })
   })
 
-  // it('It should request the items associated with a bib id - A lot of items', (done) => {
-  //   var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
-  //   if (!loadedConfig) {
-  //     console.log('No config: test/config.real.test.json was not found, no test credentials to use')
-  //   }
-  //   wrapper.auth((errorAuth, results) => {
-  //     if (errorAuth) console.log(errorAuth)
-  //     wrapper.requestBibItems('10568020', (errorBibReq, results) => {
-  //       if (errorBibReq) console.log(errorBibReq)
-  //       results.data.total.should.equal(1029)
-  //       done()
-  //     })
-  //   })
-  // })
+  it('It should request the items associated with a bib id - A lot of items', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestBibItems('10568020', (errorBibReq, results) => {
+        if (errorBibReq) console.log(errorBibReq)
+        results.data.total.should.equal(1029)
+        done()
+      })
+    })
+  })
 
   it('It should request the items associated with a bib id - A lot of items 2', (done) => {
     var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
@@ -99,7 +99,8 @@ describe('Tests', function () {
       wrapper.requestBibItems('14628261', (errorBibReq, results) => {
         if (errorBibReq) console.log(errorBibReq)
         results.data.total.should.equal(813)
-        console.log(JSON.stringify(results, null, 2))
+        // console.log(JSON.stringify(results, null, 2))
+        console.log(JSON.stringify(results.data))
 
         done()
       })
