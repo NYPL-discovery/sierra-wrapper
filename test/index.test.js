@@ -106,4 +106,19 @@ describe('Tests', function () {
       })
     })
   })
+  it('It should request a range of bib record', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestRangeBib('14628261', '', (errorBibReq, results) => {
+        if (errorBibReq) console.log(errorBibReq)
+        results.data.total.should.equal(50)
+        console.log(results)
+        done()
+      })
+    })
+  })
 })

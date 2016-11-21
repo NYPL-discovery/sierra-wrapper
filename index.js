@@ -136,6 +136,40 @@ exports.requestSingleBib = (bibId, cb) => {
   }
 }
 /**
+* Requests a bib range from the API
+*
+* Return format:
+* { data: { total: 1, entries: [ [Object] ] },
+*  url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v2/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+*
+* @param  {string} bibIdStart - the bnumber of the bib you want to request
+* @param  {string} bibIdEnd - the bnumber of the bib you want to request
+* @param  {function} cb - callback
+*/
+exports.requestRangeBib = (bibIdStart, bibIdEnd, cb) => {
+  if (!exports.authorizedToken) {
+    console.error('No authorizedToken set')
+    if (cb) cb('No authorizedToken set', false)
+  } else {
+    var url = `${exports.credsBase}bibs/?id=[${bibIdStart},${bibIdEnd}]&limit=50&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
+    console.log(url)
+    // use the bearer auth token
+    request.get(url, {
+      'auth': {
+        'bearer': exports.authorizedToken
+      }
+    },
+      (error, response, body) => {
+        if (error) console.error(error)
+        if (response.statusCode && response.statusCode === 200) {
+          if (cb) cb(null, {data: JSON.parse(body), url: url})
+        } else {
+          if (cb) cb(body, false)
+        }
+      })
+  }
+}
+/**
 * Requests all the items of a specified bib id
 * Return format:
 * { data: { total: 2, entries: [ [Object], [Object] ] },
