@@ -121,6 +121,7 @@ exports.requestSingleBib = (bibId, cb) => {
     var url = `${exports.credsBase}bibs/?limit=1&id=${bibId}&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
     // use the bearer auth token
     request.get(url, {
+      'timeout': 120 * 1000,
       'auth': {
         'bearer': exports.authorizedToken
       }
@@ -155,6 +156,7 @@ exports.requestRangeBib = (bibIdStart, bibIdEnd, cb) => {
     console.log(url)
     // use the bearer auth token
     request.get(url, {
+      'timeout': 120 * 1000,
       'auth': {
         'bearer': exports.authorizedToken
       }
