@@ -152,7 +152,9 @@ exports.requestRangeBib = (bibIdStart, bibIdEnd, cb) => {
     console.error('No authorizedToken set')
     if (cb) cb('No authorizedToken set', false)
   } else {
-    var url = `${exports.credsBase}bibs/?id=[${bibIdStart},${bibIdEnd}]&limit=50&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
+    var limit = ''
+    if (bibIdEnd === '') limit = '&limit=50'
+    var url = `${exports.credsBase}bibs/?id=[${bibIdStart},${bibIdEnd}]${limit}&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
     console.log(url)
     // use the bearer auth token
     request.get(url, {
