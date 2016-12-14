@@ -165,6 +165,10 @@ exports.requestRangeBib = (bibIdStart, bibIdEnd, cb) => {
     },
       (error, response, body) => {
         if (error) console.error(error)
+        if (!response){
+          if (cb) cb(error,false)
+          return false
+        }
         if (response.statusCode && response.statusCode === 200) {
           if (cb) cb(null, {data: JSON.parse(body), url: url})
         } else {
