@@ -165,8 +165,8 @@ exports.requestRangeBib = (bibIdStart, bibIdEnd, cb) => {
     },
       (error, response, body) => {
         if (error) console.error(error)
-        if (!response){
-          if (cb) cb(error,false)
+        if (!response) {
+          if (cb) cb(error, false)
           return false
         }
         if (response.statusCode && response.statusCode === 200) {
@@ -177,6 +177,49 @@ exports.requestRangeBib = (bibIdStart, bibIdEnd, cb) => {
       })
   }
 }
+
+/**
+* Requests an item range from the API
+*
+* Return format:
+* { data: { total: 1, entries: [ [Object] ] },
+*  url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v2/items/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+*
+* @param  {string} itemIdStart - the bnumber of the bib you want to request
+* @param  {string} itemIdEnd - the bnumber of the bib you want to request
+* @param  {function} cb - callback
+*/
+exports.requestRangeItem = (itemIdStart, itemIdEnd, cb) => {
+  if (!exports.authorizedToken) {
+    console.error('No authorizedToken set')
+    if (cb) cb('No authorizedToken set', false)
+  } else {
+    var limit = ''
+    if (itemIdEnd === '') limit = '&limit=50'
+    var url = `${exports.credsBase}items/?id=[${itemIdStart},${itemIdEnd}]${limit}&fields=default,fixedFields,varFields`
+    console.log(url)
+    // use the bearer auth token
+    request.get(url, {
+      'timeout': 120 * 1000,
+      'auth': {
+        'bearer': exports.authorizedToken
+      }
+    },
+      (error, response, body) => {
+        if (error) console.error(error)
+        if (!response) {
+          if (cb) cb(error, false)
+          return false
+        }
+        if (response.statusCode && response.statusCode === 200) {
+          if (cb) cb(null, {data: JSON.parse(body), url: url})
+        } else {
+          if (cb) cb(body, false)
+        }
+      })
+  }
+}
+
 /**
 * Requests all the items of a specified bib id
 * Return format:
