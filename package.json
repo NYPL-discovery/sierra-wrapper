@@ -11,7 +11,7 @@
     "url": "https://github.com/nypl-discovery/sierra-wrapper.git"
   },
   "author": "matt miller <thisismattmiller@gmail.com> (http://twitter.com/thisismmiller)",
-  "license": "MIT",
+  "license": "Apache-2",
   "bugs": {
     "url": "https://github.com/nypl-discovery/sierra-wrapper/issues"
   },

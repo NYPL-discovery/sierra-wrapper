@@ -4,11 +4,11 @@ A basic node wrapper for the [III Sierra v3 API](https://sandbox.iii.com/docs/Co
 
 The wrapper currently only supports:
 
-- Authorizing- 
+- Authorizing
 - Returning a single, multiple and range Bib records
-- Returning a single, multiple and range Item records 
+- Returning a single, multiple and range Item records
 - Returning item records beloning to a single Bib record
- 
+
 
 More endpoint will be added as the need arises.
 
@@ -23,7 +23,7 @@ To use make sure you have your credentials stored in a json file in the format:
 	"base": "https://your.domain.name.org/iii/sierra-api/v3/"
 }
 ```
-You then authorize and request by 
+You then authorize and request by
 
 ```
 var wrapper = require('sierra-wrapper')
@@ -34,7 +34,7 @@ wrapper.auth((error, results) => {
   wrapper.requestRangeBib('14628261', '', (errorBibReq, results) => {
     if (errorBibReq) console.log(errorBibReq)
     console.log(results)
-  })  
+  })
 })
 ```
 
@@ -94,8 +94,8 @@ Return format:
 ## loadConfig(configOrFile) ⇒ <code>boolean</code>
 Loads a congig object, passed or from disk
 
-**Kind**: global function  
-**Returns**: <code>boolean</code> - did it load or not  
+**Kind**: global function
+**Returns**: <code>boolean</code> - did it load or not
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -106,7 +106,7 @@ Loads a congig object, passed or from disk
 ## auth(cb)
 Requests an auth token from the sierra API and stores it for future use, it also setups a time to renew the token
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -121,7 +121,7 @@ Return format:
 { data: { total: 1, entries: [ [Object] ] },
  url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -137,7 +137,7 @@ Return format:
 { data: { total: 1, entries: [ [Object] ] },
  url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -154,7 +154,7 @@ Return format:
 { data: { total: 1, entries: [ [Object] ] },
  url: 'https://catalog.library.org/iii/sierra-api/v3/items/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ Return format:
 { data: { total: 2, entries: [ [Object], [Object] ] },
   url: [ 'https://catalog.library.org/iii/sierra-api/v3/items/?bibIds=17292415&fields=default,fixedFields,varFields&offset=0' ] }
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -186,7 +186,7 @@ Return format:
 { data: { total: 1, entries: [ [Object] ] },
  url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&fields=default,fixedFields,varFields,normTitle,normAuthor' }
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -202,7 +202,7 @@ Return format:
 { data: { total: 1, entries: [ [Object] ] },
  url: 'https://catalog.library.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&fields=default,fixedFields,varFields' }
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
