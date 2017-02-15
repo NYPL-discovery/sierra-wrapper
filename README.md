@@ -31,7 +31,7 @@ var wrapper = require('sierra-wrapper')
 var loadedConfig = wrapper.loadConfig('./path/to/config.json')
 wrapper.auth((error, results) => {
   if (error) console.log(error)
-  wrapper.requestRangeBib('14628261', '', (errorBibReq, results) => {
+  wrapper.requestSingleBib('14628261', (errorBibReq, results) => {
     if (errorBibReq) console.log(errorBibReq)
     console.log(results)
   })
