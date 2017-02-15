@@ -1,7 +1,7 @@
 {
   "name": "sierra-wrapper",
   "version": "0.1.0",
-  "description": "A node wrapper for Innovative's Sierra API v2",
+  "description": "A node wrapper for Innovative's Sierra API v3",
   "main": "index.js",
   "scripts": {
     "test": "mocha test"
