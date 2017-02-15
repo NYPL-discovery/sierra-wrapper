@@ -55,19 +55,19 @@ You can also set your credentials via enviorment variables: `SIERRA_KEY`, `SIERR
 <dd><p>Requests a single bib data from the API</p>
 <p>Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: &#39;<a href="https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
+ url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
 </dd>
 <dt><a href="#requestRangeBib">requestRangeBib(bibIdStart, bibIdEnd, cb)</a></dt>
 <dd><p>Requests a bib range from the API</p>
 <p>Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: &#39;<a href="https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
+ url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
 </dd>
 <dt><a href="#requestRangeItem">requestRangeItem(itemIdStart, itemIdEnd, cb)</a></dt>
 <dd><p>Requests an item range from the API</p>
 <p>Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: &#39;<a href="https://nypl-sierra-test.iii.com/iii/sierra-api/v3/items/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://nypl-sierra-test.iii.com/iii/sierra-api/v3/items/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
+ url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/items/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://catalog.library.org/iii/sierra-api/v3/items/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
 </dd>
 <dt><a href="#requestBibItems">requestBibItems(bibId, cb)</a></dt>
 <dd><p>Requests all the items of a specified bib id
@@ -79,13 +79,13 @@ Return format:
 <dd><p>Requests multiple bibs, but no orders or locations</p>
 <p>Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: &#39;<a href="https://ilsstaff.nypl.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&amp;fields=default,fixedFields,varFields,normTitle,normAuthor">https://ilsstaff.nypl.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&amp;fields=default,fixedFields,varFields,normTitle,normAuthor</a>&#39; }</p>
+ url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&amp;fields=default,fixedFields,varFields,normTitle,normAuthor">https://catalog.library.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&amp;fields=default,fixedFields,varFields,normTitle,normAuthor</a>&#39; }</p>
 </dd>
 <dt><a href="#requestMultiItemBasic">requestMultiItemBasic(itemIds, cb)</a></dt>
 <dd><p>Requests multiple items</p>
 <p>Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: &#39;<a href="https://ilsstaff.nypl.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&amp;fields=default,fixedFields,varFields">https://ilsstaff.nypl.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&amp;fields=default,fixedFields,varFields</a>&#39; }</p>
+ url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&amp;fields=default,fixedFields,varFields">https://catalog.library.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&amp;fields=default,fixedFields,varFields</a>&#39; }</p>
 </dd>
 </dl>
 
@@ -119,7 +119,7 @@ Requests a single bib data from the API
 
 Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+ url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
 **Kind**: global function  
 
@@ -135,7 +135,7 @@ Requests a bib range from the API
 
 Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+ url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
 **Kind**: global function  
 
@@ -152,7 +152,7 @@ Requests an item range from the API
 
 Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v3/items/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+ url: 'https://catalog.library.org/iii/sierra-api/v3/items/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
 **Kind**: global function  
 
@@ -184,7 +184,7 @@ Requests multiple bibs, but no orders or locations
 
 Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: 'https://ilsstaff.nypl.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&fields=default,fixedFields,varFields,normTitle,normAuthor' }
+ url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?id=14628261,14628262,14628263,14628264,14628265,14628266,14628267,14628268,14628269,14628270&fields=default,fixedFields,varFields,normTitle,normAuthor' }
 
 **Kind**: global function  
 
@@ -200,7 +200,7 @@ Requests multiple items
 
 Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: 'https://ilsstaff.nypl.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&fields=default,fixedFields,varFields' }
+ url: 'https://catalog.library.org/iii/sierra-api/v3/items/?id=10000000,10000100,10000200,10000300,10000400,10000500,10000600,10000700,10000800,10000900,10001000&fields=default,fixedFields,varFields' }
 
 **Kind**: global function  
 
