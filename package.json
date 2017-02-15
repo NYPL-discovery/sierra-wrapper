@@ -4,18 +4,18 @@
   "description": "A node wrapper for Innovative's Sierra API v2",
   "main": "index.js",
   "scripts": {
-    "test": "standard && mocha test"
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nypl-registry/sierra-wrapper.git"
+    "url": "https://github.com/nypl-discovery/sierra-wrapper.git"
   },
   "author": "matt miller <thisismattmiller@gmail.com> (http://twitter.com/thisismmiller)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nypl-registry/sierra-wrapper/issues"
+    "url": "https://github.com/nypl-discovery/sierra-wrapper/issues"
   },
-  "homepage": "https://github.com/nypl-registry/sierra-wrapper",
+  "homepage": "https://github.com/nypl-discovery/sierra-wrapper",
   "devDependencies": {
     "mocha": "^2.5.3",
     "should": "^9.0.2",

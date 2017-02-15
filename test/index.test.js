@@ -137,4 +137,35 @@ describe('Tests', function () {
       })
     })
   })
+      it('It should request multiple bib records', (done) => {
+      var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+      if (!loadedConfig) {
+        console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+      }
+      wrapper.auth((errorAuth, results) => {
+        if (errorAuth) console.log(errorAuth)
+        wrapper.requestMultiBibBasic(['14628261','14628262','14628263','14628264','14628265','14628266','14628267','14628268','14628269','14628270'], (errorBibReq, results) => {
+          if (errorBibReq) console.log(errorBibReq)
+          results.data.total.should.equal(10)
+          // console.log(JSON.stringify(results,null,2))
+          done()
+        })
+      })
+    })
+    it('It should request multiple item records', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.auth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      wrapper.requestMultiItemBasic(['10000000','10000100','10000200','10000300','10000400','10000500','10000600','10000700','10000800','10000900','10001000'], (errorItemReq, results) => {
+        if (errorItemReq) console.log(errorItemReq)
+        results.data.total.should.equal(11)
+        // console.log(JSON.stringify(results,null,2))
+        done()
+      })
+    })
+  })
+
 })
