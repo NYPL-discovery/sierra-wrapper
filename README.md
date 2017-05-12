@@ -55,7 +55,7 @@ You can also set your credentials via enviorment variables: `SIERRA_KEY`, `SIERR
 <dd><p>Requests a single bib data from the API</p>
 <p>Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/bibs/17292415?limit=1&amp;&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&amp;id=17292415&amp;fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
+ url: &#39;<a href="https://catalog.library.org/iii/sierra-api/v3/bibs/17292415?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations">https://catalog.library.org/iii/sierra-api/v3/bibs/17292415?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations</a>&#39; }</p>
 </dd>
 <dt><a href="#requestRangeBib">requestRangeBib(bibIdStart, bibIdEnd, cb)</a></dt>
 <dd><p>Requests a bib range from the API</p>
@@ -119,7 +119,7 @@ Requests a single bib data from the API
 
 Return format:
 { data: { total: 1, entries: [ [Object] ] },
- url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+ url: 'https://catalog.library.org/iii/sierra-api/v3/bibs/17292415?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 
 **Kind**: global function
 
