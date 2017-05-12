@@ -113,7 +113,7 @@ exports.auth = (cb) => {
 *
 * Return format:
 * { data: { total: 1, entries: [ [Object] ] },
-*  url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/?limit=1&id=17292415&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
+*  url: 'https://nypl-sierra-test.iii.com/iii/sierra-api/v3/bibs/17292415?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations' }
 *
 * @param  {string} bibId - the bnumber of the bib you want to request
 * @param  {function} cb - callback
@@ -123,7 +123,7 @@ exports.requestSingleBib = (bibId, cb) => {
     console.error('No authorizedToken set')
     if (cb) cb('No authorizedToken set', false)
   } else {
-    var url = `${exports.credsBase}bibs/${bibId}?limit=1&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
+    var url = `${exports.credsBase}bibs/${bibId}?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
     // use the bearer auth token
     request.get(url, {
       'timeout': 120 * 1000,
