@@ -123,7 +123,7 @@ exports.requestSingleBib = (bibId, cb) => {
     console.error('No authorizedToken set')
     if (cb) cb('No authorizedToken set', false)
   } else {
-    var url = `${exports.credsBase}bibs/?limit=1&id=${bibId}&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
+    var url = `${exports.credsBase}bibs/${bibId}?limit=1&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
     // use the bearer auth token
     request.get(url, {
       'timeout': 120 * 1000,
