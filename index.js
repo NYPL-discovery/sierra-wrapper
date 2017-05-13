@@ -138,7 +138,7 @@ exports.requestSingleBib = (bibId, cb) => {
           result.total = 1
           result.entries = []
           result.entries[0] = JSON.parse(body)
-          if (cb) cb(null, {data: JSON.parse(result), url: url})
+          if (cb) cb(null, {data: result, url: url})
         } else {
           if (cb) cb(body, false)
         }
