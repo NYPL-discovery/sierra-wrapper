@@ -134,7 +134,11 @@ exports.requestSingleBib = (bibId, cb) => {
       (error, response, body) => {
         if (error) console.error(error)
         if (response.statusCode && response.statusCode === 200) {
-          if (cb) cb(null, {data: JSON.parse(body), url: url})
+          var result = {}
+          result.total = 1
+          result.entries = []
+          result.entries[0] = JSON.parse(body)
+          if (cb) cb(null, {data: JSON.parse(result), url: url})
         } else {
           if (cb) cb(body, false)
         }
