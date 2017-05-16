@@ -1,6 +1,6 @@
 {
-  "name": "sierra-wrapper",
-  "version": "0.1.3",
+  "name": "@nypl/sierra-wrapper",
+  "version": "0.2.0",
   "description": "A node wrapper for Innovative's Sierra API v3",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,16 @@
     "type": "git",
     "url": "https://github.com/nypl-discovery/sierra-wrapper.git"
   },
-  "author": "matt miller <thisismattmiller@gmail.com> (http://twitter.com/thisismmiller)",
+  "author": {
+    "name": "Matt Miller",
+    "url": "http://twitter.com/thisismmiller",
+  },
+  "contributors": [
+    {
+      "name": "Jobin Thomas",
+      "email": "jobinthomas@nypl.org",
+    }
+  ],
   "license": "Apache-2",
   "bugs": {
     "url": "https://github.com/nypl-discovery/sierra-wrapper/issues"
