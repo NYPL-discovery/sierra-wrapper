@@ -26,7 +26,7 @@ To use make sure you have your credentials stored in a json file in the format:
 You then authorize and request by
 
 ```
-var wrapper = require('sierra-wrapper')
+var wrapper = require('@nypl/sierra-wrapper')
 
 var loadedConfig = wrapper.loadConfig('./path/to/config.json')
 wrapper.auth((error, results) => {
