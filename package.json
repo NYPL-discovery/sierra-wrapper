@@ -12,12 +12,12 @@
   },
   "author": {
     "name": "Matt Miller",
-    "url": "http://twitter.com/thisismmiller",
+    "url": "http://twitter.com/thisismmiller"
   },
   "contributors": [
     {
       "name": "Jobin Thomas",
-      "email": "jobinthomas@nypl.org",
+      "email": "jobinthomas@nypl.org"
     }
   ],
   "license": "Apache-2",
