@@ -30,6 +30,19 @@ describe('Tests', function () {
       done()
     })
   })
+  it('It should request an auth token - and return a promise', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.promiseAuth((error, results) => {
+      if (error) console.log(error)
+      return results
+    }).then((results) => {
+      results.should.be.type('string')
+      done()
+    })
+  })
   it('It should request an auth token - and not work', (done) => {
     var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
     if (!loadedConfig) {
@@ -165,6 +178,52 @@ describe('Tests', function () {
         // console.log(JSON.stringify(results,null,2))
         done()
       })
+    })
+  })
+  it('It should make a get request and then call the callback', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.promiseAuth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      return wrapper.apiGet(`patrons/1001006`, (errorItemReq, results) => {
+        if (errorItemReq) console.log(errorItemReq)
+        // return new Promise((resolve, reject) => {
+        //   resolve(results) })
+        return results
+      })
+    }).then((results) => {
+      //console.log(results)
+      results.should.be.type('object')
+      done()
+    })
+  })
+  it.only('It should make a post request and then call the callback', (done) => {
+    const body = {
+      json: true,
+      method: 'POST',
+      body: {
+        'recordType': 'i',
+        'recordNumber': 10000000,
+        'pickupLocation': 'maii2'
+      }
+    }
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+    }
+    wrapper.promiseAuth((errorAuth, results) => {
+      if (errorAuth) console.log(errorAuth)
+      return wrapper.apiPost(`patrons/1001006/holds/requests`, body, (errorItemReq, results) => {
+        if (errorItemReq) return errorItemReq
+        // return new Promise((resolve, reject) => {
+        //   resolve(results) })
+        return false
+      })
+    }).then((results) => {
+      results.should.be.type('object')
+      done()
     })
   })
 
