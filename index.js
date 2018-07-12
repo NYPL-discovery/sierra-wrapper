@@ -380,7 +380,11 @@ exports.requestMultiItemBasic = (itemIds, cb) => {
   }
 }
 
-exports.newAuth = (cb) => {
+
+// Just like auth except in case of a successful call, returns a promise that resolves to the value of the
+// callback
+
+exports.promiseAuth = (cb) => {
   if (!exports.credsKey || !exports.credsSecret || !exports.credsBase) {
     console.error('No credentials set')
     if (cb) cb('No credentials set', false)
@@ -402,7 +406,6 @@ exports.newAuth = (cb) => {
         }
 
         if (response.statusCode === 200) {
-          console.log('newAuth');
           exports.authorizedToken = JSON.parse(body)['access_token']
           exports.authorizedTimestamp = Math.floor(Date.now() / 1000)
 

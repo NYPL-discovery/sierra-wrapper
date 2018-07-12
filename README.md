@@ -26,7 +26,7 @@ To use make sure you have your credentials stored in a json file in the format:
 You then authorize and request by
 
 ```
-//  starting v0.2.0 use require ('@nypl/sierra-wrapper') but for versions before that (we encourage you to 
+//  starting v0.2.0 use require ('@nypl/sierra-wrapper') but for versions before that (we encourage you to
 //  update to latest and change client to reflect the new require format) use require ('sierra-wrapper')
 
 var wrapper = require('@nypl/sierra-wrapper')
@@ -41,7 +41,7 @@ wrapper.auth((error, results) => {
 })
 ```
 
-You can also set your credentials via enviorment variables: `SIERRA_KEY`, `SIERRA_SECRET`, `SIERRA_BASE`
+You can also set your credentials via environment variables: `SIERRA_KEY`, `SIERRA_SECRET`, `SIERRA_BASE`
 
 ----
 
@@ -49,7 +49,7 @@ You can also set your credentials via enviorment variables: `SIERRA_KEY`, `SIERR
 
 <dl>
 <dt><a href="#loadConfig">loadConfig(configOrFile)</a> ⇒ <code>boolean</code></dt>
-<dd><p>Loads a congig object, passed or from disk</p>
+<dd><p>Loads a config object, passed or from disk</p>
 </dd>
 <dt><a href="#auth">auth(cb)</a></dt>
 <dd><p>Requests an auth token from the sierra API and stores it for future use, it also setups a time to renew the token</p>
@@ -95,7 +95,7 @@ Return format:
 <a name="loadConfig"></a>
 
 ## loadConfig(configOrFile) ⇒ <code>boolean</code>
-Loads a congig object, passed or from disk
+Loads a config object, passed or from disk
 
 **Kind**: global function
 **Returns**: <code>boolean</code> - did it load or not
