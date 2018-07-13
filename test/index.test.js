@@ -38,10 +38,11 @@ describe('Tests', function () {
     wrapper.promiseAuth((error, results) => {
       if (error) console.log(error)
       return results
-    }).then((results) => {
-      results.should.be.type('string')
-      done()
     })
+    .then((results) => {
+      results.should.be.type('string')
+    })
+    .then(done, done)
   })
   it('It should request an auth token - and not work', (done) => {
     var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
@@ -193,13 +194,14 @@ describe('Tests', function () {
         //   resolve(results) })
         return results
       })
-    }).then((results) => {
+    })
+    .then((results) => {
       //console.log(results)
       results.should.be.type('object')
-      done()
     })
+    .then(done, done)
   })
-  it.only('It should make a post request and then call the callback', (done) => {
+  it('It should make a post request and then call the callback', (done) => {
     const body = {
       json: true,
       method: 'POST',
@@ -221,10 +223,11 @@ describe('Tests', function () {
         //   resolve(results) })
         return false
       })
-    }).then((results) => {
-      results.should.be.type('object')
-      done()
     })
+    .then((results) => {
+      results.should.be.type('object')
+    })
+    .then(done, done)
   })
 
 })
