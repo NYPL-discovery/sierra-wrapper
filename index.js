@@ -436,15 +436,15 @@ exports.apiGet = (path, cb) => {
     if (cb) cb('No authorizedToken set', false)
   } else {
     var url = `${exports.credsBase}${path}`
-    console.log(url);
+    console.log(url)
     // use the bearer auth token
     return new Promise((resolve, reject) => {
       request.get(url, {
-      'timeout': 120 * 1000,
-      'auth': {
-        'bearer': exports.authorizedToken
-      }
-    },
+        'timeout': 120 * 1000,
+        'auth': {
+          'bearer': exports.authorizedToken
+        }
+      },
       (error, response, body) => {
         if (error) console.error(error)
         if (response.statusCode && response.statusCode === 200) {
@@ -452,9 +452,8 @@ exports.apiGet = (path, cb) => {
           result.total = 1
           result.entries = []
           result.entries[0] = JSON.parse(body)
-          //console.log('here');
           if (cb) {
-            resolve(cb(null, {data: result, url: url}));
+            resolve(cb(null, {data: result, url: url}))
           }
         } else {
           if (cb) reject(cb(body, false))
@@ -470,10 +469,10 @@ exports.apiPost = (path, data, cb) => {
     if (cb) cb('No authorizedToken set', false)
   } else {
     var url = `${exports.credsBase}${path}`
-    console.log(url);
+    console.log(url)
     // use the bearer auth token
     return new Promise((resolve, reject) => {
-      request(Object.assign(data, {'url': url, 'auth': {'bearer': exports.authorizedToken} }),
+      request(Object.assign(data, { 'url': url, 'auth': {'bearer': exports.authorizedToken} }),
       (error, response, body) => {
         if (error) console.error(error)
         if (response.statusCode && response.statusCode === 200) {
@@ -483,7 +482,7 @@ exports.apiPost = (path, data, cb) => {
           result.entries[0] = JSON.parse(body)
           if (cb) resolve(cb(null, {data: result, url: url}))
         } else {
-          if (cb) resolve(cb(body, false));
+          if (cb) resolve(cb(body, false))
         }
       })
     })

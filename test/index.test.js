@@ -151,16 +151,16 @@ describe('Tests', function () {
       })
     })
   })
-      it('It should request multiple bib records', (done) => {
-      var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
-      if (!loadedConfig) {
+  it('It should request multiple bib records', (done) => {
+    var loadedConfig = wrapper.loadConfig('./test/config.real.test.json')
+    if (!loadedConfig) {
         console.log('No config: test/config.real.test.json was not found, no test credentials to use')
       }
-      wrapper.auth((errorAuth, results) => {
+    wrapper.auth((errorAuth, results) => {
         if (errorAuth) console.log(errorAuth)
-        wrapper.requestMultiBibBasic(['14628261','14628262','14628263','14628264','14628265','14628266','14628267','14628268','14628269','14628270'], (errorBibReq, results) => {
+      wrapper.requestMultiBibBasic(['14628261','14628262','14628263','14628264','14628265','14628266','14628267','14628268','14628269','14628270'], (errorBibReq, results) => {
           if (errorBibReq) console.log(errorBibReq)
-          results.data.total.should.equal(10)
+        results.data.total.should.equal(10)
           // console.log(JSON.stringify(results,null,2))
           done()
         })
@@ -188,7 +188,7 @@ describe('Tests', function () {
     }
     wrapper.promiseAuth((errorAuth, results) => {
       if (errorAuth) console.log(errorAuth)
-      return wrapper.apiGet(`patrons/1001006`, (errorItemReq, results) => {
+      return wrapper.apiGet('patrons/1001006', (errorItemReq, results) => {
         if (errorItemReq) console.log(errorItemReq)
         // return new Promise((resolve, reject) => {
         //   resolve(results) })
@@ -196,7 +196,6 @@ describe('Tests', function () {
       })
     })
     .then((results) => {
-      //console.log(results)
       results.should.be.type('object')
     })
     .then(done, done)
@@ -217,7 +216,7 @@ describe('Tests', function () {
     }
     wrapper.promiseAuth((errorAuth, results) => {
       if (errorAuth) console.log(errorAuth)
-      return wrapper.apiPost(`patrons/1001006/holds/requests`, body, (errorItemReq, results) => {
+      return wrapper.apiPost('patrons/1001006/holds/requests', body, (errorItemReq, results) => {
         if (errorItemReq) return errorItemReq
         // return new Promise((resolve, reject) => {
         //   resolve(results) })
@@ -229,5 +228,4 @@ describe('Tests', function () {
     })
     .then(done, done)
   })
-
 })
