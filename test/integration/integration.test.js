@@ -98,9 +98,6 @@ describe('Tests', function () {
       wrapper.requestBibItems('14628261', (errorBibReq, results) => {
         if (errorBibReq) console.log(errorBibReq)
         results.data.total.should.equal(813)
-        // console.log(JSON.stringify(results, null, 2))
-        console.log(JSON.stringify(results.data))
-
         done()
       })
     })
@@ -130,8 +127,6 @@ describe('Tests', function () {
       wrapper.requestRangeItem('10000000', '', (errorBibReq, results) => {
         if (errorBibReq) console.log(errorBibReq)
         results.data.total.should.equal(50)
-        console.log(results)
-        console.log(JSON.stringify(results, null, 2))
         done()
       })
     })
@@ -140,18 +135,17 @@ describe('Tests', function () {
     var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
         console.log('No config: test/config.real.test.json was not found, no test credentials to use')
-      }
+    }
     wrapper.auth((errorAuth, results) => {
-        if (errorAuth) console.log(errorAuth)
+      if (errorAuth) console.log(errorAuth)
       wrapper.requestMultiBibBasic(['14628261','14628262','14628263','14628264','14628265','14628266','14628267','14628268','14628269','14628270'], (errorBibReq, results) => {
-          if (errorBibReq) console.log(errorBibReq)
+        if (errorBibReq) console.log(errorBibReq)
         results.data.total.should.equal(10)
-          // console.log(JSON.stringify(results,null,2))
-          done()
-        })
+        done()
       })
     })
-    it('Should request multiple item records', (done) => {
+  })
+  it('Should request multiple item records', (done) => {
     var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
@@ -161,7 +155,6 @@ describe('Tests', function () {
       wrapper.requestMultiItemBasic(['10000000','10000100','10000200','10000300','10000400','10000500','10000600','10000700','10000800','10000900','10001000'], (errorItemReq, results) => {
         if (errorItemReq) console.log(errorItemReq)
         results.data.total.should.equal(11)
-        // console.log(JSON.stringify(results,null,2))
         done()
       })
     })
@@ -175,8 +168,6 @@ describe('Tests', function () {
       if (errorAuth) console.log(errorAuth)
       return wrapper.apiGet('patrons/1001006', (errorItemReq, results) => {
         if (errorItemReq) console.log(errorItemReq)
-        // return new Promise((resolve, reject) => {
-        //   resolve(results) })
         return results
       })
     })
@@ -195,6 +186,11 @@ describe('Tests', function () {
         'pickupLocation': 'maii2'
       }
     }
+    const expectedResults = { code: 132,
+      specificCode: 2,
+      httpStatus: 500,
+      name: 'XCirc error',
+      description: 'XCirc error : Bib record cannot be loaded' }
     var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
@@ -203,13 +199,12 @@ describe('Tests', function () {
       if (errorAuth) console.log(errorAuth)
       return wrapper.apiPost('patrons/1001006/holds/requests', body, (errorItemReq, results) => {
         if (errorItemReq) return errorItemReq
-        // return new Promise((resolve, reject) => {
-        //   resolve(results) })
         return false
       })
     })
     .then((results) => {
-      results.should.be.type('object')
+      console.log(results)
+      results.should.deepEqual(expectedResults)
     })
     .then(done, done)
   })

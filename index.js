@@ -391,7 +391,7 @@ exports.promiseAuth = (cb) => {
   } else {
     // uses the basic auth method to ask for the token
     return new Promise((resolve, reject) => {
-      request.post(exports.credsBase + 'token', {
+      request.post(`${exports.credsBase}token`, {
         'auth': {
           'user': exports.credsKey,
           'pass': exports.credsSecret
@@ -408,14 +408,6 @@ exports.promiseAuth = (cb) => {
         if (response.statusCode === 200) {
           exports.authorizedToken = JSON.parse(body)['access_token']
           exports.authorizedTimestamp = Math.floor(Date.now() / 1000)
-
-          // if that worked we want to keep the token always up to date, so request a new one every halflife
-          // clearInterval(exports.authorizedTimer)
-          // exports.authorizedTimer = setInterval(() => {
-          //   exports.auth(() => {
-          //     // do something on the refresh?
-          //   })
-          // }, ((JSON.parse(body)['expires_in'] / 2) * 1000))
 
           if (cb) {
             resolve(cb(null, JSON.parse(body)['access_token']))
@@ -436,7 +428,6 @@ exports.apiGet = (path, cb) => {
     if (cb) cb('No authorizedToken set', false)
   } else {
     var url = `${exports.credsBase}${path}`
-    console.log(url)
     // use the bearer auth token
     return new Promise((resolve, reject) => {
       request.get(url, {
@@ -445,20 +436,20 @@ exports.apiGet = (path, cb) => {
           'bearer': exports.authorizedToken
         }
       },
-      (error, response, body) => {
-        if (error) console.error(error)
-        if (response.statusCode && response.statusCode === 200) {
-          var result = {}
-          result.total = 1
-          result.entries = []
-          result.entries[0] = JSON.parse(body)
-          if (cb) {
-            resolve(cb(null, {data: result, url: url}))
+        (error, response, body) => {
+          if (error) console.error(error)
+          if (response.statusCode && response.statusCode === 200) {
+            let result = {}
+            result.total = 1
+            result.entries = []
+            result.entries[0] = JSON.parse(body)
+            if (cb) {
+              resolve(cb(null, {data: result, url}))
+            }
+          } else {
+            if (cb) reject(cb(body, false))
           }
-        } else {
-          if (cb) reject(cb(body, false))
-        }
-      })
+        })
     })
   }
 }
@@ -469,22 +460,21 @@ exports.apiPost = (path, data, cb) => {
     if (cb) cb('No authorizedToken set', false)
   } else {
     var url = `${exports.credsBase}${path}`
-    console.log(url)
     // use the bearer auth token
     return new Promise((resolve, reject) => {
       request(Object.assign(data, { 'url': url, 'auth': {'bearer': exports.authorizedToken} }),
-      (error, response, body) => {
-        if (error) console.error(error)
-        if (response.statusCode && response.statusCode === 200) {
-          var result = {}
-          result.total = 1
-          result.entries = []
-          result.entries[0] = JSON.parse(body)
-          if (cb) resolve(cb(null, {data: result, url: url}))
-        } else {
-          if (cb) resolve(cb(body, false))
-        }
-      })
+        (error, response, body) => {
+          if (error) console.error(error)
+          if (response.statusCode && response.statusCode === 200) {
+            let result = {}
+            result.total = 1
+            result.entries = []
+            result.entries[0] = JSON.parse(body)
+            if (cb) resolve(cb(null, {data: result, url}))
+          } else {
+            if (cb) resolve(cb(body, false))
+          }
+        })
     })
   }
 }
