@@ -1,6 +1,6 @@
 {
   "name": "@nypl/sierra-wrapper",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A node wrapper for Innovative's Sierra API v3",
   "main": "index.js",
   "scripts": {
