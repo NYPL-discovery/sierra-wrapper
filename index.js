@@ -379,3 +379,102 @@ exports.requestMultiItemBasic = (itemIds, cb) => {
       })
   }
 }
+
+
+// Just like auth except in case of a successful call, returns a promise that resolves to the value of the
+// callback
+
+exports.promiseAuth = (cb) => {
+  if (!exports.credsKey || !exports.credsSecret || !exports.credsBase) {
+    console.error('No credentials set')
+    if (cb) cb('No credentials set', false)
+  } else {
+    // uses the basic auth method to ask for the token
+    return new Promise((resolve, reject) => {
+      request.post(`${exports.credsBase}token`, {
+        'auth': {
+          'user': exports.credsKey,
+          'pass': exports.credsSecret
+        }
+      },
+      (error, response, body) => {
+        if (error) console.error(error)
+        if (!response) {
+          console.error('Error: Make sure you set the correct base path to the API.')
+          exports.authorizedTimestamp = false
+          if (cb) cb('Error: Make sure you set the correct base path to the API.', false)
+        }
+
+        if (response.statusCode === 200) {
+          exports.authorizedToken = JSON.parse(body)['access_token']
+          exports.authorizedTimestamp = Math.floor(Date.now() / 1000)
+
+          if (cb) {
+            resolve(cb(null, JSON.parse(body)['access_token']))
+          }
+        } else {
+          console.error('error: ' + response.statusCode)
+          exports.authorizedTimestamp = false
+          if (cb) cb(body, false)
+        }
+      })
+    })
+  }
+}
+
+exports.apiGet = (path, cb) => {
+  if (!exports.authorizedToken) {
+    console.error('No authorizedToken set')
+    if (cb) cb('No authorizedToken set', false)
+  } else {
+    var url = `${exports.credsBase}${path}`
+    // use the bearer auth token
+    return new Promise((resolve, reject) => {
+      request.get(url, {
+        'timeout': 120 * 1000,
+        'auth': {
+          'bearer': exports.authorizedToken
+        }
+      },
+        (error, response, body) => {
+          if (error) console.error(error)
+          if (response.statusCode && response.statusCode === 200) {
+            let result = {}
+            result.total = 1
+            result.entries = []
+            result.entries[0] = JSON.parse(body)
+            if (cb) {
+              resolve(cb(null, {data: result, url}))
+            }
+          } else {
+            if (cb) reject(cb(body, false))
+          }
+        })
+    })
+  }
+}
+
+exports.apiPost = (path, data, cb) => {
+  if (!exports.authorizedToken) {
+    console.error('No authorizedToken set')
+    if (cb) cb('No authorizedToken set', false)
+  } else {
+    var url = `${exports.credsBase}${path}`
+    // use the bearer auth token
+    return new Promise((resolve, reject) => {
+      request(Object.assign(data, { 'url': url, 'auth': {'bearer': exports.authorizedToken} }),
+        (error, response, body) => {
+          if (error) console.error(error)
+          if (response.statusCode && response.statusCode === 200) {
+            let result = {}
+            result.total = 1
+            result.entries = []
+            result.entries[0] = JSON.parse(body)
+            if (cb) resolve(cb(null, {data: result, url}))
+          } else {
+            if (cb) resolve(cb(body, false))
+          }
+        })
+    })
+  }
+}

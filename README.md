@@ -2,13 +2,18 @@
 
 A basic node wrapper for the [III Sierra v3 API](https://sandbox.iii.com/docs/Content/titlePage.htm)
 
-The wrapper currently only supports:
+The wrapper currently supports:
 
 - Authorizing
 - Returning a single, multiple and range Bib records
 - Returning a single, multiple and range Item records
-- Returning item records beloning to a single Bib record
+- Returning item records belonging to a single Bib record
 
+In addition there are general methods that can be used to make any GET or POST
+request:
+
+-apiGet
+-apiPost
 
 More endpoint will be added as the need arises.
 
@@ -26,7 +31,7 @@ To use make sure you have your credentials stored in a json file in the format:
 You then authorize and request by
 
 ```
-//  starting v0.2.0 use require ('@nypl/sierra-wrapper') but for versions before that (we encourage you to 
+//  starting v0.2.0 use require ('@nypl/sierra-wrapper') but for versions before that (we encourage you to
 //  update to latest and change client to reflect the new require format) use require ('sierra-wrapper')
 
 var wrapper = require('@nypl/sierra-wrapper')
@@ -41,7 +46,7 @@ wrapper.auth((error, results) => {
 })
 ```
 
-You can also set your credentials via enviorment variables: `SIERRA_KEY`, `SIERRA_SECRET`, `SIERRA_BASE`
+You can also set your credentials via environment variables: `SIERRA_KEY`, `SIERRA_SECRET`, `SIERRA_BASE`
 
 ----
 
@@ -49,7 +54,7 @@ You can also set your credentials via enviorment variables: `SIERRA_KEY`, `SIERR
 
 <dl>
 <dt><a href="#loadConfig">loadConfig(configOrFile)</a> ⇒ <code>boolean</code></dt>
-<dd><p>Loads a congig object, passed or from disk</p>
+<dd><p>Loads a config object, passed or from disk</p>
 </dd>
 <dt><a href="#auth">auth(cb)</a></dt>
 <dd><p>Requests an auth token from the sierra API and stores it for future use, it also setups a time to renew the token</p>
@@ -95,7 +100,7 @@ Return format:
 <a name="loadConfig"></a>
 
 ## loadConfig(configOrFile) ⇒ <code>boolean</code>
-Loads a congig object, passed or from disk
+Loads a config object, passed or from disk
 
 **Kind**: global function
 **Returns**: <code>boolean</code> - did it load or not
@@ -116,6 +121,9 @@ Requests an auth token from the sierra API and stores it for future use, it also
 | cb | <code>function</code> | callback |
 
 <a name="requestSingleBib"></a>
+
+##promiseAuth(cb)
+The same as auth, but returns a promise which resolves to the value of the callback
 
 ## requestSingleBib(bibId, cb)
 Requests a single bib data from the API
@@ -211,3 +219,34 @@ Return format:
 | --- | --- | --- |
 | itemIds | <code>array</code> | array of item ids |
 | cb | <code>function</code> | callback |
+
+## apiGet(path, cb)
+Makes a get request to ${exports.credsBase}${path} and then returns a promise which resolves or rejects to the value of the callback.
+
+For example apiGet('patrons/1001006', (errorItemReq, results) => {
+	if (errorItemReq) console.log(errorItemReq)
+	return results
+})
+
+resolves to the result:
+
+ {"data":{"total":1,"entries":[{"id":1001006,"expirationDate":"2019-01-07","patronType":10,"patronCodes":{"pcode1":"-","pcode2":"-","pcode3":2,"pcode4":0},"homeLibraryCode":"hd","message":{"code":"-","accountMessages":["LBR6@columbia.edu"]},"blockInfo":{"code":"-"},"moneyOwed":0}]},"url":"https://nypl-sierra-test.iii.com/iii/sierra-api/v3/patrons/1001006"}
+
+## apiPost(path, data, cb)
+Makes a post request to ${exports.credsBase}${path} and returns a promise resolving to the value of the callback.
+For example:
+
+
+apiPost('patrons/1001006/holds/requests', body, (errorItemReq, results) => {
+	if (errorItemReq) return errorItemReq
+	return false
+})
+})
+
+resolves to the result:
+
+{ code: 132,
+	specificCode: 2,
+	httpStatus: 500,
+	name: 'XCirc error',
+	description: 'XCirc error : Bib record cannot be loaded' }
