@@ -4,7 +4,7 @@
   "description": "A node wrapper for Innovative's Sierra API v3",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test --timeout 8000"
   },
   "repository": {
     "type": "git",
@@ -26,15 +26,21 @@
   },
   "homepage": "https://github.com/nypl-discovery/sierra-wrapper",
   "devDependencies": {
+    "axios-mock-adapter": "^1.20.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "clear-require": "^3.0.0",
     "mocha": "^2.5.3",
     "should": "^9.0.2",
+    "sinon": "^13.0.1",
     "standard": "^7.1.2"
   },
   "dependencies": {
+    "axios": "^0.25.0",
     "highland": "^2.8.1",
     "request": "^2.72.0"
   },
   "eslintConfig": {
     "extends": "standard"
-    }
+  }
 }
