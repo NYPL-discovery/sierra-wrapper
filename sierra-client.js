@@ -58,7 +58,6 @@ async function authenticate(_retryCount = 1) {
   if (!credsKey || !credsSecret || !credsBase) {
     throw new Error('No credentials set')
   } else if (accessToken === null) {
-    try {
       const response = await axios.post(`${credsBase}token`, {
         'auth': {
           'user': credsKey,
@@ -70,14 +69,7 @@ async function authenticate(_retryCount = 1) {
       } else {
         accessToken = response.data['access_token']
       }
-    } catch (error) {
-      if (error.name === RETRY_ERROR) {
-        throw new RetryError("Authentication")
-      }
-      logger.error(error.message)
-    }
   }
-
 }
 
 //Retry failed requests with exponential backoff up to three times
@@ -87,7 +79,9 @@ async function _retryAuth(_retryCount) {
     await delay(1000 * Math.pow(2, _retryCount - 1))
     await authenticate(_retryCount + 1)
   } else {
-    throw new RetryError('Authentication')
+    const error = new RetryError('Authentication')
+    logger.error(error.message)
+    throw error
   }
 }
 
@@ -97,7 +91,9 @@ async function _retryGet(path, _retryCount){
     await delay(1000 * Math.pow(2, _retryCount - 1))
     await get(path, _retryCount + 1)
   } else {
-    throw new RetryError('Get request')
+    const error = new RetryError('Get request')
+    logger.error(error.message)
+    throw error
   }
 }
 
@@ -106,7 +102,7 @@ async function _reauthenticate() {
   try {
     await authenticate()
   } catch (error) {
-    if (error.name = RETRY_ERROR) throw new RetryError('Authenticate')
+    throw error
   }
 }
 
@@ -128,10 +124,7 @@ async function get(path, _retryCount = 1) {
         return get(path)
       }
     }
-    if (error.name === RETRY_ERROR) {
-      throw new RetryError('Get request')
-    }
-    logger.error(error.message)
+    else throw error
   }
 }
 
