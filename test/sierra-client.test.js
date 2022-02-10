@@ -11,7 +11,7 @@ const chai = require('chai')
 const { expect } = chai
 chai.use(require('chai-as-promised'));
 const sinon = require('sinon');
-const { get } = require('highland');
+const logger = require('../logger')
 
 const credsBase = 'credsBase.com/'
 const credsKey = 'credsKey'
@@ -58,12 +58,35 @@ describe('test', function () {
 
       sinon.assert.calledTwice(axiosSpy)
     })
-    it('throws a RetryError when auth fails 3 times', async () => {
+    it('logs a warning when there is an empty response', async () => {
+      loggerWarning = sinon.spy(logger, 'warning')
+      mockAxios.onPost(`${credsBase}token`, auth)
+        .replyOnce(200, "")
+        .onPost(`${credsBase}token`, auth)
+        .replyOnce(200, { "access_token": "12345" })
+      await wrapper.authenticate()
+
+      sinon.assert.calledOnce(loggerWarning)
+
+      logger.warning.restore()
+    })
+    it('Throws a RetryError when auth fails 3 times', async () => {
+
       mockAxios.onPost(`${credsBase}token`, auth)
         .reply(200, "")
-
-      await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError,
-        "Authentication failed after 3 attempts with empty responses")
+      const errorMessage = "Authentication failed after 3 attempts with empty responses"
+      await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError, errorMessage
+      )
+    })
+    it('Logs a RetryError when auth fails 3 times', async () => {
+      let loggerError = sinon.spy(logger, 'error')
+      mockAxios.onPost(`${credsBase}token`, auth)
+        .reply(200, "")
+      const errorMessage = "Authentication failed after 3 attempts with empty responses"
+      await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError, errorMessage
+      )
+      expect(loggerError.calledWith(errorMessage))
+      logger.error.restore()
     })
   })
 
@@ -106,13 +129,24 @@ describe('test', function () {
       axios.get.restore()
     })
 
-    it('throws retry error when request is empty 3x', async () => {
+    it('Throws a retry error when request is empty 3x', async () => {
       mockAxios.onPost(`${credsBase}token`, auth).reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, "")
-
+      const errorMessage = "Get request failed after 3 attempts with empty responses"
       await expect(wrapper.get()).to.be.rejectedWith(wrapper.RetryError,
-        "Get request failed after 3 attempts with empty responses")
+        errorMessage)
+    })
+    it('Logs a retry error when request is empty 3x', async () => {
+      let loggerError = sinon.spy(logger, 'error')
+      mockAxios.onPost(`${credsBase}token`, auth).reply(200, { "access_token": "12345" })
+      mockAxios.onGet()
+        .reply(200, "")
+      const errorMessage = "Get request failed after 3 attempts with empty responses"
+      await expect(wrapper.get()).to.be.rejectedWith(wrapper.RetryError,
+        errorMessage)
+      expect(loggerError.calledWith(errorMessage))
+      logger.error.restore()
     })
   })
 })
