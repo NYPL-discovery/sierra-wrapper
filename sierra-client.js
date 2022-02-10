@@ -1,5 +1,6 @@
 const axios = require('axios')
 const fs = require('fs')
+const logger = require('./logger')
 
 const RETRY_ERROR = 'retry error'
 
@@ -65,7 +66,7 @@ async function authenticate(_retryCount = 1) {
         }
       })
       if (response.data === "" && response.status < 300 && response.status >= 200) {
-        await _retry(()=>authenticate(_retryCount+1), _retryCount)
+        await _retryAuth(_retryCount)
       } else {
         accessToken = response.data['access_token']
       }
@@ -73,21 +74,30 @@ async function authenticate(_retryCount = 1) {
       if (error.name === RETRY_ERROR) {
         throw new RetryError("Authentication")
       }
-      console.error(error)
+      logger.error(error.message)
     }
   }
 
 }
 
 //Retry failed requests with exponential backoff up to three times
-async function _retry(request, _retryCount) {
+async function _retryAuth(_retryCount) {
   if (_retryCount <= 3) {
-    console.log(`${request.name} retry #${_retryCount} due to empty response from Sierra API`)
+    logger.warning(`Authentication retry #${_retryCount} due to empty response from Sierra API`)
     await delay(1000 * Math.pow(2, _retryCount - 1))
-    
-    await request()
+    await authenticate(_retryCount + 1)
   } else {
-    throw new RetryError(request.name)
+    throw new RetryError('Authentication')
+  }
+}
+
+async function _retryGet(path, _retryCount){
+  if (_retryCount <= 3) {
+    logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
+    await delay(1000 * Math.pow(2, _retryCount - 1))
+    await get(path, _retryCount + 1)
+  } else {
+    throw new RetryError('Get request')
   }
 }
 
@@ -107,7 +117,7 @@ async function get(path, _retryCount = 1) {
       'timeout': 120 * 1000, 'auth': { 'bearer': accessToken }
     })
     if (response.data === "" && response.status < 300 && response.status >= 200) {
-      await _retry(()=>get(path, _retryCount+1), _retryCount)
+      await _retryGet(path, _retryCount)
     } else {
       return response.data
     }
@@ -121,12 +131,12 @@ async function get(path, _retryCount = 1) {
     if (error.name === RETRY_ERROR) {
       throw new RetryError('Get request')
     }
-    console.error(error)
+    logger.error(error.message)
   }
 }
 
 module.exports = {
   get, authenticate, config,
   //private exports are exported for testing purposes
-  _reauthenticate,_accessToken: () => accessToken, RetryError
+  _reauthenticate, _accessToken: () => accessToken, RetryError
 }
