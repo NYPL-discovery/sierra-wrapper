@@ -85,27 +85,6 @@ async function _retryAuth(_retryCount) {
   }
 }
 
-async function _retryGet(path, _retryCount){
-  if (_retryCount <= 3) {
-    logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
-    await delay(1000 * Math.pow(2, _retryCount - 1))
-    await get(path, _retryCount + 1)
-  } else {
-    const error = new RetryError('Get request')
-    logger.error(error.message)
-    throw error
-  }
-}
-
-async function _reauthenticate() {
-  accessToken = null
-  try {
-    await authenticate()
-  } catch (error) {
-    throw error
-  }
-}
-
 async function get(path, _retryCount = 1) {
   try {
     await authenticate()
@@ -128,8 +107,71 @@ async function get(path, _retryCount = 1) {
   }
 }
 
+async function _retryGet(path, _retryCount){
+  if (_retryCount <= 3) {
+    logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
+    await delay(1000 * Math.pow(2, _retryCount - 1))
+    await get(path, _retryCount + 1)
+  } else {
+    const error = new RetryError('Get request')
+    logger.error(error.message)
+    throw error
+  }
+}
+
+async function _reauthenticate() {
+  accessToken = null
+  try {
+    await authenticate()
+  } catch (error) {
+    throw error
+  }
+}
+
+async function getSingleBib(bibId){
+  const path = `bibs/${bibId}${bibId}?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
+  return await get(path)
+}
+
+async function getRangeBib(bibIdStart,bibIdEnd){
+  let limit = ''
+  if (bibIdEnd === '') limit = '&limit=50'
+  const path = `bibs/?id=[${bibIdStart},${bibIdEnd}]${limit}&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
+  return await get(path)
+}
+
+async function getRangeItem(itemIdStart, itemIdEnd){
+  let limit = ''
+  if (itemIdEnd === '') limit = '&limit=50'
+  const path = `items/?id=[${itemIdStart},${itemIdEnd}]${limit}&fields=default,fixedFields,varFields`
+  return await get(path)
+}
+
+async function getBibItems(bibId, items = [], pagination = 1){
+  console.log('called')
+  const path = `items/?bibIds=${bibId}&fields=default,fixedFields,varFields&offset=${pagination * 50}`
+  let response = await get(bibId)
+  console.log(response)
+  if(response.entries.length > 0) [...items, ...response.entries]
+  if(response.entries.length === 50) getBibItems(bibId, items, pagination+1)
+  else {
+    return items
+  }
+}
+
+async function getMultiBibsBasic(bibsIds){
+  const path = `bibs/?id=${bibsIds.join(',')}&fields=default,fixedFields,varFields,normTitle,normAuthor`
+  return await get(path)
+}
+
+async function getMultiItemsBasic(itemIds){
+  const path = `items/?id=${itemIds.join(',')}&fields=default,fixedFields,varFields`
+  return await get(path)
+}
+
 module.exports = {
-  get, authenticate, config,
+  get, authenticate, config, getBibItems, getMultiBibsBasic, getMultiItemsBasic,
+  getRangeBib, getRangeItem, getSingleBib,
   //private exports are exported for testing purposes
   _reauthenticate, _accessToken: () => accessToken, RetryError
 }

@@ -90,7 +90,7 @@ describe('test', function () {
     })
   })
 
-  describe('get', () => {
+  describe('generic get', () => {
     let response = "all of the books"
     it('returns data', async () => {
       mockAxios.onPost(`${credsBase}token`, auth)
@@ -147,6 +147,20 @@ describe('test', function () {
         errorMessage)
       expect(loggerError.calledWith(errorMessage))
       logger.error.restore()
+    })
+  })
+  
+  describe('getBibItems', () => {
+    it.only('should recursively return all items from a given bib', async() => {
+      const get = sinon.stub(wrapper, 'get')
+      const fiftyItems = { entries: Array(50).fill("item") }
+      const fifteenItems = { entries: Array(15).fill("item") }
+      get.onFirstCall().returns(fiftyItems)
+      get.onSecondCall().returns(fiftyItems)
+      get.onThirdCall().returns(fifteenItems)
+
+      const items = await wrapper.getBibItems("bibId")
+      expect(items.length).to.equal(115)
     })
   })
 })
