@@ -1,6 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 const logger = require('./logger')
+const proxyquire = require('proxyquire')
 
 const RETRY_ERROR = 'retry error'
 
@@ -70,6 +71,7 @@ async function authenticate(_retryCount = 1) {
         accessToken = response.data['access_token']
       }
   }
+  
 }
 
 //Retry failed requests with exponential backoff up to three times
@@ -130,30 +132,28 @@ async function _reauthenticate() {
 
 async function getSingleBib(bibId){
   const path = `bibs/${bibId}${bibId}?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
-  return await get(path)
+  return get(path)
 }
 
 async function getRangeBib(bibIdStart,bibIdEnd){
   let limit = ''
   if (bibIdEnd === '') limit = '&limit=50'
   const path = `bibs/?id=[${bibIdStart},${bibIdEnd}]${limit}&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
-  return await get(path)
+  return get(path)
 }
 
 async function getRangeItem(itemIdStart, itemIdEnd){
   let limit = ''
   if (itemIdEnd === '') limit = '&limit=50'
   const path = `items/?id=[${itemIdStart},${itemIdEnd}]${limit}&fields=default,fixedFields,varFields`
-  return await get(path)
+  return get(path)
 }
 
-async function getBibItems(bibId, items = [], pagination = 1){
-  console.log('called')
+async function getBibItems(bibId, items = [], pagination = 0){
   const path = `items/?bibIds=${bibId}&fields=default,fixedFields,varFields&offset=${pagination * 50}`
-  let response = await get(bibId)
-  console.log(response)
-  if(response.entries.length > 0) [...items, ...response.entries]
-  if(response.entries.length === 50) getBibItems(bibId, items, pagination+1)
+  let response = await get(path)
+  if(response.entries.length > 0) items = [...items, ...response.entries]
+  if(response.entries.length === 50) return getBibItems(bibId, items, pagination+1)
   else {
     return items
   }
@@ -161,12 +161,12 @@ async function getBibItems(bibId, items = [], pagination = 1){
 
 async function getMultiBibsBasic(bibsIds){
   const path = `bibs/?id=${bibsIds.join(',')}&fields=default,fixedFields,varFields,normTitle,normAuthor`
-  return await get(path)
+  return get(path)
 }
 
 async function getMultiItemsBasic(itemIds){
   const path = `items/?id=${itemIds.join(',')}&fields=default,fixedFields,varFields`
-  return await get(path)
+  return get(path)
 }
 
 module.exports = {

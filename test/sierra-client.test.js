@@ -57,6 +57,7 @@ describe('test', function () {
       await wrapper.authenticate()
 
       sinon.assert.calledTwice(axiosSpy)
+      axios.post.restore()
     })
     it('logs a warning when there is an empty response', async () => {
       loggerWarning = sinon.spy(logger, 'warning')
@@ -137,6 +138,7 @@ describe('test', function () {
       await expect(wrapper.get()).to.be.rejectedWith(wrapper.RetryError,
         errorMessage)
     })
+
     it('Logs a retry error when request is empty 3x', async () => {
       let loggerError = sinon.spy(logger, 'error')
       mockAxios.onPost(`${credsBase}token`, auth).reply(200, { "access_token": "12345" })
@@ -149,15 +151,17 @@ describe('test', function () {
       logger.error.restore()
     })
   })
-  
+
   describe('getBibItems', () => {
-    it.only('should recursively return all items from a given bib', async() => {
-      const get = sinon.stub(wrapper, 'get')
-      const fiftyItems = { entries: Array(50).fill("item") }
-      const fifteenItems = { entries: Array(15).fill("item") }
-      get.onFirstCall().returns(fiftyItems)
-      get.onSecondCall().returns(fiftyItems)
-      get.onThirdCall().returns(fifteenItems)
+    it('should recursively return all items from a given bib', async () => {
+      axiosGet = sinon.stub(axios, 'get')
+      axiosPost = sinon.stub(axios, 'post')
+      const fiftyItems = { data: { entries: Array(50).fill("item") } }
+      const fifteenItems = { data: { entries: Array(15).fill("item") } }
+      axiosPost.returns({ data: { 'access_token': '12345' } })
+      axiosGet.onFirstCall().returns(fiftyItems)
+      axiosGet.onSecondCall().returns(fiftyItems)
+      axiosGet.onThirdCall().returns(fifteenItems)
 
       const items = await wrapper.getBibItems("bibId")
       expect(items.length).to.equal(115)

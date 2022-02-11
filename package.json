@@ -30,12 +30,15 @@
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "mocha": "^2.5.3",
+    "proxyquire": "^2.1.3",
+    "request": "^2.88.2",
     "sinon": "^13.0.1",
     "standard": "^7.1.2"
   },
   "dependencies": {
     "axios": "^0.25.0",
     "highland": "^2.8.1",
+    "should": "^13.2.3",
     "winston": "^3.5.1"
   },
   "eslintConfig": {
