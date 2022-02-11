@@ -59,19 +59,19 @@ async function authenticate(_retryCount = 1) {
   if (!credsKey || !credsSecret || !credsBase) {
     throw new Error('No credentials set')
   } else if (accessToken === null) {
-      const response = await axios.post(`${credsBase}token`, {
-        'auth': {
-          'user': credsKey,
-          'pass': credsSecret
-        }
-      })
-      if (response.data === "" && response.status < 300 && response.status >= 200) {
-        await _retryAuth(_retryCount)
-      } else {
-        accessToken = response.data['access_token']
+    const response = await axios.post(`${credsBase}token`, {
+      'auth': {
+        'user': credsKey,
+        'pass': credsSecret
       }
+    })
+    if (response.data === "" && response.status < 300 && response.status >= 200) {
+      await _retryAuth(_retryCount)
+    } else {
+      accessToken = response.data['access_token']
+    }
   }
-  
+
 }
 
 //Retry failed requests with exponential backoff up to three times
@@ -109,7 +109,7 @@ async function get(path, _retryCount = 1) {
   }
 }
 
-async function _retryGet(path, _retryCount){
+async function _retryGet(path, _retryCount) {
   if (_retryCount <= 3) {
     logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
     await delay(1000 * Math.pow(2, _retryCount - 1))
@@ -118,6 +118,24 @@ async function _retryGet(path, _retryCount){
     const error = new RetryError('Get request')
     logger.error(error.message)
     throw error
+  }
+}
+
+async function post(path, data) {
+  try {
+    await authenticate()
+    const response = await axios.post(credsBase + path, data, {
+      'timeout': 120 * 1000, 'auth': { 'bearer': accessToken }
+    })
+    return response.data
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 401) {
+        await _reauthenticate()
+        return post(path)
+      }
+    }
+    else throw error
   }
 }
 
@@ -130,48 +148,48 @@ async function _reauthenticate() {
   }
 }
 
-async function getSingleBib(bibId){
+async function getSingleBib(bibId) {
   const path = `bibs/${bibId}${bibId}?fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
   return get(path)
 }
 
-async function getRangeBib(bibIdStart,bibIdEnd){
+async function getRangeBib(bibIdStart, bibIdEnd) {
   let limit = ''
   if (bibIdEnd === '') limit = '&limit=50'
   const path = `bibs/?id=[${bibIdStart},${bibIdEnd}]${limit}&fields=default,fixedFields,varFields,normTitle,normAuthor,orders,locations`
   return get(path)
 }
 
-async function getRangeItem(itemIdStart, itemIdEnd){
+async function getRangeItem(itemIdStart, itemIdEnd) {
   let limit = ''
   if (itemIdEnd === '') limit = '&limit=50'
   const path = `items/?id=[${itemIdStart},${itemIdEnd}]${limit}&fields=default,fixedFields,varFields`
   return get(path)
 }
 
-async function getBibItems(bibId, items = [], pagination = 0){
+async function getBibItems(bibId, items = [], pagination = 0) {
   const path = `items/?bibIds=${bibId}&fields=default,fixedFields,varFields&offset=${pagination * 50}`
   let response = await get(path)
-  if(response.entries.length > 0) items = [...items, ...response.entries]
-  if(response.entries.length === 50) return getBibItems(bibId, items, pagination+1)
+  if (response.entries.length > 0) items = [...items, ...response.entries]
+  if (response.entries.length === 50) return getBibItems(bibId, items, pagination + 1)
   else {
     return items
   }
 }
 
-async function getMultiBibsBasic(bibsIds){
+async function getMultiBibsBasic(bibsIds) {
   const path = `bibs/?id=${bibsIds.join(',')}&fields=default,fixedFields,varFields,normTitle,normAuthor`
   return get(path)
 }
 
-async function getMultiItemsBasic(itemIds){
+async function getMultiItemsBasic(itemIds) {
   const path = `items/?id=${itemIds.join(',')}&fields=default,fixedFields,varFields`
   return get(path)
 }
 
 module.exports = {
-  get, authenticate, config, getBibItems, getMultiBibsBasic, getMultiItemsBasic,
-  getRangeBib, getRangeItem, getSingleBib,
+  authenticate, get, post, config, getBibItems, getMultiBibsBasic, 
+  getMultiItemsBasic,getRangeBib, getRangeItem, getSingleBib,
   //private exports are exported for testing purposes
-  _reauthenticate, _accessToken: () => accessToken, RetryError
+  _accessToken: () => accessToken, RetryError, _reauthenticate
 }

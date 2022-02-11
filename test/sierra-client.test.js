@@ -12,13 +12,15 @@ const { expect } = chai
 chai.use(require('chai-as-promised'));
 const sinon = require('sinon');
 const logger = require('../logger')
+const rewire = require('rewire');
+const { _reauthenticate } = require('../sierra-client');
 
 const credsBase = 'credsBase.com/'
 const credsKey = 'credsKey'
 const credsSecret = 'credsSecret'
 
 describe('test', function () {
-  let auth
+  let authHeader
   let mockAxios
 
   beforeEach(function () {
@@ -103,16 +105,19 @@ describe('test', function () {
     })
 
     it('calls reauthenticate when the access token is expired', async () => {
-      const axiosSpy = sinon.spy(axios, 'get')
+      wrapper = rewire('../sierra-client.js')
+      wrapper.config({ credsKey, credsSecret, credsBase })
+      const reauthenticate = wrapper.__get__('_reauthenticate')
+      const reauthenticateSpy = sinon.spy(reauthenticate)
+      wrapper.__set__('_reauthenticate', reauthenticateSpy)
+
       mockAxios.onGet()
         .replyOnce(401).onGet().reply(200, response)
       mockAxios.onPost()
         .reply(200, { "access_token": "12345" })
 
       await wrapper.get("books")
-      sinon.assert.calledTwice(axiosSpy)
-
-      axios.get.restore()
+      expect(reauthenticateSpy.called)
     })
 
     it('retries get request 1x when given an empty response once', async () => {
@@ -152,10 +157,29 @@ describe('test', function () {
     })
   })
 
+  describe('generic post', async ()=>{
+    it('calls reauthenticate when the access token is expired', async () => {
+      wrapper = rewire('../sierra-client.js')
+      wrapper.config({ credsKey, credsSecret, credsBase })
+      const reauthenticate = wrapper.__get__('_reauthenticate')
+      const reauthenticateSpy = sinon.spy(reauthenticate)
+      wrapper.__set__('_reauthenticate', reauthenticateSpy)
+      const data = {books: ["the","books"]}
+      //authenticate 
+      mockAxios.onPost(`${credsBase}token`, auth)
+        .reply(200, { "access_token": "12345" })
+        //post() call
+      mockAxios.onPost()
+        .replyOnce(401).onPost().reply(200, "success")
+      await wrapper.post("newBooks", data)
+      expect(reauthenticateSpy.called)
+    })
+  })
+
   describe('getBibItems', () => {
     it('should recursively return all items from a given bib', async () => {
-      axiosGet = sinon.stub(axios, 'get')
-      axiosPost = sinon.stub(axios, 'post')
+      const axiosGet = sinon.stub(axios, 'get')
+      const axiosPost = sinon.stub(axios, 'post')
       const fiftyItems = { data: { entries: Array(50).fill("item") } }
       const fifteenItems = { data: { entries: Array(15).fill("item") } }
       axiosPost.returns({ data: { 'access_token': '12345' } })
