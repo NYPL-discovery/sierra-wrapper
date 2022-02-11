@@ -48,56 +48,99 @@ wrapper.config(options)
 
 ----
 
-## Functions
+## config(configOrFile) ⇒ <code>boolean</code>
+Loads a config object, passed or from disk
+**Returns**: <code>boolean</code> - did it load or not
 
-<dl>
-<dt><a href="#loadConfig">config(configOrFile)</a> ⇒ <code>boolean</code></dt>
-<dd><p>Loads a config object, passed or from disk</p>
-</dd>
-<dt><a href="#authenticate">authenticate()</a></dt>
-<dd><p>Requests an auth token from the sierra API and stores it for future use. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).</p>
-</dd>
-<dt><a href="#get">get(path)</a></dt>
-<dd><p>Makes a get request to the base URL (set in #config) + path. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).</p>
-</dd>
-<dt><a href="#post">post(path, data)</a></dt>
-<dd><p>Makes a post request with data to the base URL (set in #config) + path. It does not automatically reattempt when there is an empty response from Sierra (a not uncommon error).</p>
-</dd>
-<dt><a href="#getSingleBib">getSingleBib(bibId)</a></dt>
-<dd><p>Requests a single bib data from the API</p>
-<p>Return format:
+| Param | Type | Description |
+| --- | --- | --- |
+| configOrFile | <code>object</code> &#124; <code>string</code> | The object with the credentials or a path to a json file with the credentials |
+
+## authenticate()
+Requests an auth token from the sierra API and stores it for future use. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).
+
+
+## get(path)
+Makes a get request to ${exports.credsBase}${path} and returns the response
+
+resolves to the result:
+
+{"id":1001006,"expirationDate":"2019-01-07","patronType":10,"patronCodes":{"pcode1":"-","pcode2":"-","pcode3":2,"pcode4":0},"homeLibraryCode":"hd","message":{"code":"-","accountMessages":["LBR6@columbia.edu"]}
+
+## post(path, data)
+Makes a post request to ${exports.credsBase}${path} and returns the response
+
+resolves to the result:
+
+{ code: 132,
+	specificCode: 2,
+	httpStatus: 500,
+	name: 'XCirc error',
+	description: 'XCirc error : Bib record cannot be loaded' }
+
+## getSingleBib(bibId)
+Requests a single bib data from the API
+
+Return format:
 [Object]
-</p>
-</dd>
-<dt><a href="#getRangeBib">getRangeBib(bibIdStart, bibIdEnd)</a></dt>
-<dd><p>Requests a bib range from the API</p>
-<p>Return format:
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bibId | <code>string</code> | the bnumber of the bib you want to request |
+
+## getRangeBib(bibIdStart, bibIdEnd)
+Requests a bib range from the API
+
+Return format:
 [Object]
- </p>
-</dd>
-<dt><a href="#getRangeItem">getRangeItem(itemIdStart, itemIdEnd)</a></dt>
-<dd><p>Requests an item range from the API</p>
-<p>Return format:
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bibIdStart | <code>string</code> | the bnumber of the bib you want to request |
+| bibIdEnd | <code>string</code> | the bnumber of the bib you want to request |
+
+## getRangeItem(itemIdStart, itemIdEnd)
+Requests an item range from the API
+
+Return format:
 [Object]
-</p>
-</dd>
-<dt><a href="#getBibItems">getBibItems(bibId)</a></dt>
-<dd><p>Requests all the items of a specified bib id
+
+| Param | Type | Description |
+| --- | --- | --- |
+| itemIdStart | <code>string</code> | the bnumber of the bib you want to request |
+| itemIdEnd | <code>string</code> | the bnumber of the bib you want to request |
+
+## getBibItems(bibId)
+Requests all the items of a specified bib id
 Return format:
 [ [Object], [Object] ]
-</p>
-</dd>
-<dt><a href="#getMultiBibBasic">getMultiBibBasic(bibsIds)</a></dt>
-<dd><p>Requests multiple bibs, but no orders or locations</p>
-<p>Return format:
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bibId | <code>string</code> | the bnumber of the bib you want to request |
+
+## getMultiBibBasic(bibsIds)
+Requests multiple bibs, but no orders or locations
+
+Return format:
 [Object]
-</p>
-</dd>
-<dt><a href="#getMultiItemBasic">getMultiItemBasic(itemIds)</a></dt>
-<dd><p>Requests multiple items</p>
-<p>Return format:
+
+| Param | Type | Description |
+| --- | --- | --- |
+| bibsIds | <code>array</code> | an array of bib id strings |
+
+
+## getMultiItemBasic(itemIds)
+Requests multiple items
+
+Return format:
 [Object]
-</p>
-</dd>
-</dl>
+
+| Param | Type | Description |
+| --- | --- | --- |
+| itemIds | <code>array</code> | array of item ids |
+
+
+
+
 
