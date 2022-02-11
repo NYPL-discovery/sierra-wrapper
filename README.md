@@ -12,8 +12,8 @@ The wrapper currently supports:
 In addition there are general methods that can be used to make any GET or POST
 request:
 
--get
--post
+- get
+- post
 
 More endpoint will be added as the need arises.
 
