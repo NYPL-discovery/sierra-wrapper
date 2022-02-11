@@ -59,9 +59,8 @@ Loads a config object, passed or from disk
 ## authenticate()
 Requests an auth token from the sierra API and stores it for future use. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).
 
-
 ## get(path)
-Makes a get request to ${exports.credsBase}${path} and returns the response
+Makes a get request to ${exports.credsBase}${path} and returns the response. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).
 
 resolves to the result:
 

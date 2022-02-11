@@ -23,12 +23,6 @@ if (process.env.SIERRA_KEY) credsKey = process.env.SIERRA_KEY
 if (process.env.SIERRA_SECRET) credsSecret = process.env.SIERRA_SECRET
 if (process.env.SIERRA_BASE) credsBase = process.env.SIERRA_BASE
 
-/**
-* Loads a config object, passed or from disk
-*
-* @param  {object|string} configOrFile - The object with the credentials or a path to a json file with the credentials
-* @return {boolean} did it load or not
-*/
 function config(options) {
   if (typeof options === 'string') {
     // assume it is a file name
@@ -73,7 +67,6 @@ async function authenticate(_retryCount = 1) {
 
 }
 
-//Retry failed requests with exponential backoff up to three times
 async function _retryAuth(_retryCount) {
   if (_retryCount <= 3) {
     logger.warning(`Authentication retry #${_retryCount} due to empty response from Sierra API`)
