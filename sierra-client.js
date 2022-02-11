@@ -1,7 +1,6 @@
 const axios = require('axios')
 const fs = require('fs')
 const logger = require('./logger')
-const proxyquire = require('proxyquire')
 
 const RETRY_ERROR = 'retry error'
 
