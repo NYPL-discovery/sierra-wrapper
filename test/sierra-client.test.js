@@ -7,20 +7,18 @@ let wrapper
 const MockAdapter = require('axios-mock-adapter')
 const axios = require('axios')
 const chai = require('chai')
-//const wrapper = require('../sierra-client.js')
 const { expect } = chai
 chai.use(require('chai-as-promised'));
 const sinon = require('sinon');
 const logger = require('../logger')
 const rewire = require('rewire');
-const { _reauthenticate } = require('../sierra-client');
 
 const credsBase = 'credsBase.com/'
 const credsKey = 'credsKey'
 const credsSecret = 'credsSecret'
 
 describe('test', function () {
-  let authHeader
+  let auth
   let mockAxios
 
   beforeEach(function () {
@@ -110,14 +108,15 @@ describe('test', function () {
       const reauthenticate = wrapper.__get__('_reauthenticate')
       const reauthenticateSpy = sinon.spy(reauthenticate)
       wrapper.__set__('_reauthenticate', reauthenticateSpy)
-
       mockAxios.onGet()
         .replyOnce(401).onGet().reply(200, response)
       mockAxios.onPost()
         .reply(200, { "access_token": "12345" })
-
       await wrapper.get("books")
+      
       expect(reauthenticateSpy.called)
+
+      wrapper = requireUncached('../sierra-client.js')
     })
 
     it('retries get request 1x when given an empty response once', async () => {
