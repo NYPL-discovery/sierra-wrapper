@@ -13,7 +13,7 @@ const sinon = require('sinon');
 const logger = require('../logger')
 const rewire = require('rewire');
 
-const credsBase = 'credsBase.com/'
+const baseUrl = 'baseUrl.com/'
 const credsKey = 'credsKey'
 const credsSecret = 'credsSecret'
 
@@ -24,7 +24,7 @@ describe('test', function () {
   beforeEach(function () {
     mockAxios = new MockAdapter(axios)
     wrapper = requireUncached('../index.js')
-    wrapper.config({ credsKey, credsSecret, credsBase })
+    wrapper.config({ credsKey, credsSecret, baseUrl })
     auth = {
       'auth':
       {
@@ -34,36 +34,37 @@ describe('test', function () {
     }
   })
 
-  describe('authenticate', function () {
+  describe.only('authenticate', function () {
     it('should throw an error if there are no credentials', async function () {
       wrapper = requireUncached('../index.js')
       await expect(wrapper.authenticate()).to.be.rejectedWith(`No credentials set`)
     })
     it('should make an axios post request with the credentials', async function () {
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost()
         .reply(200, { "access_token": "12345" })
 
       await wrapper.authenticate()
       expect(wrapper._accessToken()).to.equal("12345")
     })
     it('retries authentication 1x when given an empty response once', async () => {
-      const axiosSpy = sinon.spy(axios, 'post')
-      sinon.spy(wrapper, 'authenticate')
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost()
         .replyOnce(200, "")
-        .onPost(`${credsBase}token`, auth)
+        .onPost()
         .replyOnce(200, { "access_token": "12345" })
-
+      wrapper = rewire('../index.js')
+      wrapper.config({ credsKey, credsSecret, baseUrl })
+      const retryAuth = wrapper.__get__('_retryAuth')
+      const retrySpy = sinon.spy(retryAuth)
+      wrapper.__set__('_retryAuth', retrySpy)
       await wrapper.authenticate()
 
-      sinon.assert.calledTwice(axiosSpy)
-      axios.post.restore()
+      sinon.assert.calledOnce(retrySpy)
     })
     it('logs a warning when there is an empty response', async () => {
       loggerWarning = sinon.spy(logger, 'warning')
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost()
         .replyOnce(200, "")
-        .onPost(`${credsBase}token`, auth)
+        .onPost()
         .replyOnce(200, { "access_token": "12345" })
       await wrapper.authenticate()
 
@@ -72,8 +73,7 @@ describe('test', function () {
       logger.warning.restore()
     })
     it('Throws a RetryError when auth fails 3 times', async () => {
-
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost()
         .reply(200, "")
       const errorMessage = "Authentication failed after 3 attempts with empty responses"
       await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError, errorMessage
@@ -81,7 +81,7 @@ describe('test', function () {
     })
     it('Logs a RetryError when auth fails 3 times', async () => {
       let loggerError = sinon.spy(logger, 'error')
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost()
         .reply(200, "")
       const errorMessage = "Authentication failed after 3 attempts with empty responses"
       await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError, errorMessage
@@ -94,7 +94,7 @@ describe('test', function () {
   describe('generic get', () => {
     let response = "all of the books"
     it('returns data', async () => {
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost(`${baseUrl}token`, auth)
         .reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, response)
@@ -104,7 +104,7 @@ describe('test', function () {
 
     it('calls reauthenticate when the access token is expired', async () => {
       wrapper = rewire('../index.js')
-      wrapper.config({ credsKey, credsSecret, credsBase })
+      wrapper.config({ credsKey, credsSecret, baseUrl })
       const reauthenticate = wrapper.__get__('_reauthenticate')
       const reauthenticateSpy = sinon.spy(reauthenticate)
       wrapper.__set__('_reauthenticate', reauthenticateSpy)
@@ -135,7 +135,7 @@ describe('test', function () {
     })
 
     it('Throws a retry error when request is empty 3x', async () => {
-      mockAxios.onPost(`${credsBase}token`, auth).reply(200, { "access_token": "12345" })
+      mockAxios.onPost(`${baseUrl}token`, auth).reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, "")
       const errorMessage = "Get request failed after 3 attempts with empty responses"
@@ -145,7 +145,7 @@ describe('test', function () {
 
     it('Logs a retry error when request is empty 3x', async () => {
       let loggerError = sinon.spy(logger, 'error')
-      mockAxios.onPost(`${credsBase}token`, auth).reply(200, { "access_token": "12345" })
+      mockAxios.onPost(`${baseUrl}token`, auth).reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, "")
       const errorMessage = "Get request failed after 3 attempts with empty responses"
@@ -159,13 +159,13 @@ describe('test', function () {
   describe('generic post', async ()=>{
     it('calls reauthenticate when the access token is expired', async () => {
       wrapper = rewire('../index.js')
-      wrapper.config({ credsKey, credsSecret, credsBase })
+      wrapper.config({ credsKey, credsSecret, baseUrl })
       const reauthenticate = wrapper.__get__('_reauthenticate')
       const reauthenticateSpy = sinon.spy(reauthenticate)
       wrapper.__set__('_reauthenticate', reauthenticateSpy)
       const data = {books: ["the","books"]}
       //authenticate 
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost(`${baseUrl}token`, auth)
         .reply(200, { "access_token": "12345" })
         //post() call
       mockAxios.onPost()

@@ -1,6 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 const logger = require('./logger')
+const qs = require('qs')
 
 const RETRY_ERROR = 'retry error'
 
@@ -17,30 +18,30 @@ const delay = async (time) => new Promise((resolve, reject) => setTimeout(resolv
 let accessToken = null
 let credsKey = null
 let credsSecret = null
-let credsBase = null
+let baseUrl = null
 
 if (process.env.SIERRA_KEY) credsKey = process.env.SIERRA_KEY
 if (process.env.SIERRA_SECRET) credsSecret = process.env.SIERRA_SECRET
-if (process.env.SIERRA_BASE) credsBase = process.env.SIERRA_BASE
+if (process.env.SIERRA_BASE) baseUrl = process.env.SIERRA_BASE
 
 function config(options) {
   if (typeof options === 'string') {
     // assume it is a file name
     try {
       let fileName = options
-      let contents = fs.readFile(fileName, 'utf8')
+      let contents = fs.readFileSync(fileName, 'utf8')
       options = JSON.parse(contents)
     } catch (error) {
-      console.error(`Could not open config file: ${fileName}`)
-      console.error(error)
+      logger.error(error.message)
     }
   }
+
   credsKey = options.credsKey
   credsSecret = options.credsSecret
-  credsBase = options.credsBase
-  credsBase += credsBase.endsWith('/') ? '' : '/'
+  baseUrl = options.baseUrl
+  baseUrl += baseUrl.endsWith('/') ? '' : '/'
 
-  if (credsKey && credsSecret && credsBase) {
+  if (credsKey && credsSecret && baseUrl) {
     return true
   } else {
     console.error('config options not structured as expected')
@@ -49,22 +50,35 @@ function config(options) {
 }
 
 async function authenticate(_retryCount = 1) {
-  if (!credsKey || !credsSecret || !credsBase) {
+  if (!credsKey || !credsSecret || !baseUrl) {
     throw new Error('No credentials set')
   } else if (accessToken === null) {
-    const response = await axios.post(`${credsBase}token`, {
-      'auth': {
-        'user': credsKey,
-        'pass': credsSecret
-      }
-    })
+    const data = {
+      grant_type: "client_credentials",
+    };
+
+    const auth = {
+      username: credsKey,
+      password: credsSecret,
+    };
+
+    const options = {
+      method: "post",
+      data: qs.stringify(data),
+      auth,
+      url: baseUrl + 'token',
+    };
+
+    // const response = await axios(options)
+    const response = await axios.post(baseUrl+accessToken,{data:qs.stringify(data), auth})
     if (response.data === "" && response.status < 300 && response.status >= 200) {
       await _retryAuth(_retryCount)
     } else {
       accessToken = response.data['access_token']
+      if (accessToken === null) throw new Error('Authentication error. Check your baseUrl and credentials')
+
     }
   }
-
 }
 
 async function _retryAuth(_retryCount) {
@@ -82,7 +96,7 @@ async function _retryAuth(_retryCount) {
 async function get(path, _retryCount = 1) {
   try {
     await authenticate()
-    const response = await axios.get(credsBase + path, {
+    const response = await axios.get(baseUrl + path, {
       'timeout': 120 * 1000, 'auth': { 'bearer': accessToken }
     })
     if (response.data === "" && response.status < 300 && response.status >= 200) {
@@ -116,7 +130,7 @@ async function _retryGet(path, _retryCount) {
 async function post(path, data) {
   try {
     await authenticate()
-    const response = await axios.post(credsBase + path, data, {
+    const response = await axios.post(baseUrl + path, data, {
       'timeout': 120 * 1000, 'auth': { 'bearer': accessToken }
     })
     return response.data
@@ -177,7 +191,7 @@ async function getMultiItemsBasic(itemIds) {
 
 module.exports = {
   authenticate, get, post, config, getBibItems, getMultiBibsBasic,
-  getMultiItemsBasic, getRangeBib, getRangeItem, getSingleBib,
-  //private exports are exported for testing purposes
-  _accessToken: () => accessToken, RetryError, _reauthenticate
+  getMultiItemsBasic, getRangeBib, getRangeItem, getSingleBib,config,
+  //private exports are exported for testing purposes:
+  _accessToken: () => accessToken, RetryError, _reauthenticate, _retryAuth
 }
