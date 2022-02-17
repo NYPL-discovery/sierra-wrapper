@@ -8,7 +8,8 @@
  *
  *  source .env; node ./test-with-env-creds
  */
-const wrapper = require('@nypl/sierra-wrapper')
+// const wrapper = require('@nypl/sierra-wrapper')
+const wrapper = require('../../index')
 
 wrapper.config('./creds.json')
 
