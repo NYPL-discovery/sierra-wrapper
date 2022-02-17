@@ -1,6 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 const logger = require('./logger')
+const setLogLevel = logger.setLevel
 const qs = require('qs')
 
 const RETRY_ERROR = 'retry error'
@@ -27,12 +28,12 @@ if (process.env.SIERRA_BASE) baseUrl = process.env.SIERRA_BASE
 function config(options) {
   if (typeof options === 'string') {
     // assume it is a file name
+    let fileName = options
     try {
-      let fileName = options
       let contents = fs.readFileSync(fileName, 'utf8')
       options = JSON.parse(contents)
     } catch (error) {
-      logger.error(error.message)
+      logger.error(console.error(`Could not open config file: ${fileName}`))
     }
   }
 
@@ -50,6 +51,7 @@ function config(options) {
 }
 
 async function authenticate(_retryCount = 1) {
+  try{
   if (!credsKey || !credsSecret || !baseUrl) {
     throw new Error('No credentials set')
   } else if (accessToken === null) {
@@ -78,6 +80,9 @@ async function authenticate(_retryCount = 1) {
       if (accessToken === null) throw new Error('Authentication error. Check your baseUrl and credentials')
 
     }
+  }}
+  catch(error){
+    
   }
 }
 
@@ -191,7 +196,8 @@ async function getMultiItemsBasic(itemIds) {
 
 module.exports = {
   authenticate, get, post, config, getBibItems, getMultiBibsBasic,
-  getMultiItemsBasic, getRangeBib, getRangeItem, getSingleBib,config,
+  getMultiItemsBasic, getRangeBib, getRangeItem, getSingleBib, config,
+  setLogLevel,
   //private exports are exported for testing purposes:
   _accessToken: () => accessToken, RetryError, _reauthenticate, _retryAuth
 }
