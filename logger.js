@@ -79,7 +79,6 @@ const logger = winston.createLogger({
  *  Set logging level (e.g. 'debug','info','warn','error','critical')
  */
 logger.setLevel = (level) => {
-  logger.transports.console.level = level
+  logger.transports.forEach((transport) => transport.level = level)
 }
-
 module.exports = logger
