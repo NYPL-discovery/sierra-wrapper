@@ -16,8 +16,12 @@ const wrapper = require('../../index')
 wrapper.setLogLevel('error')
 
 const run = async () => {
+  try{
   const bibs = await wrapper.get('bibs')
   console.log('Got bibs:', bibs)
+  }catch(e){
+    console.log('error at test run',e.message)
+  }
 }
 
 run()

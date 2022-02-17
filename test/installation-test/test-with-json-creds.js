@@ -14,8 +14,12 @@ const wrapper = require('../../index')
 wrapper.config('./creds.json')
 
 const run = async () => {
+  try{
   const bibs = await wrapper.get('bibs')
   console.log('Got bibs:', bibs)
+  }catch(e){
+    console.log('error at test run',e.message)
+  }
 }
 
 run()
