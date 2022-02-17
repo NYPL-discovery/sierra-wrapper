@@ -97,7 +97,7 @@ async function get(path, _retryCount = 1) {
   try {
     await authenticate()
     const response = await axios.get(baseUrl + path, {
-      'timeout': 120 * 1000, 'auth': { 'bearer': accessToken }
+      timeout: 120 * 1000, headers: { 'Authorization': `Bearer ${accessToken}` }
     })
     if (response.data === "" && response.status < 300 && response.status >= 200) {
       await _retryGet(path, _retryCount)
@@ -131,7 +131,7 @@ async function post(path, data) {
   try {
     await authenticate()
     const response = await axios.post(baseUrl + path, data, {
-      'timeout': 120 * 1000, 'auth': { 'bearer': accessToken }
+      timeout: 120 * 1000, headers: { 'Authorization': `Bearer ${accessToken}` }
     })
     return response.data
   } catch (error) {

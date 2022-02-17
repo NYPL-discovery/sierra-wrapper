@@ -34,7 +34,7 @@ describe('test', function () {
     }
   })
 
-  describe.only('authenticate', function () {
+  describe('authenticate', function () {
     it('should throw an error if there are no credentials', async function () {
       wrapper = requireUncached('../index.js')
       await expect(wrapper.authenticate()).to.be.rejectedWith(`No credentials set`)
@@ -94,7 +94,7 @@ describe('test', function () {
   describe('generic get', () => {
     let response = "all of the books"
     it('returns data', async () => {
-      mockAxios.onPost(`${baseUrl}token`, auth)
+      mockAxios.onPost()
         .reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, response)
@@ -135,7 +135,7 @@ describe('test', function () {
     })
 
     it('Throws a retry error when request is empty 3x', async () => {
-      mockAxios.onPost(`${baseUrl}token`, auth).reply(200, { "access_token": "12345" })
+      mockAxios.onPost().reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, "")
       const errorMessage = "Get request failed after 3 attempts with empty responses"
@@ -145,7 +145,7 @@ describe('test', function () {
 
     it('Logs a retry error when request is empty 3x', async () => {
       let loggerError = sinon.spy(logger, 'error')
-      mockAxios.onPost(`${baseUrl}token`, auth).reply(200, { "access_token": "12345" })
+      mockAxios.onPost().reply(200, { "access_token": "12345" })
       mockAxios.onGet()
         .reply(200, "")
       const errorMessage = "Get request failed after 3 attempts with empty responses"
