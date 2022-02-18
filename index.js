@@ -3,6 +3,7 @@ const fs = require('fs')
 const logger = require('./logger')
 const setLogLevel = logger.setLevel
 const qs = require('qs')
+require('dotenv').config()
 
 const RETRY_ERROR = 'retry error'
 
@@ -23,7 +24,7 @@ let baseUrl = null
 
 if (process.env.SIERRA_KEY) credsKey = process.env.SIERRA_KEY
 if (process.env.SIERRA_SECRET) credsSecret = process.env.SIERRA_SECRET
-if (process.env.SIERRA_BASE) baseUrl = process.env.SIERRA_BASE
+if (process.env.SIERRA_URL) baseUrl = process.env.SIERRA_URL
 
 function config(options) {
   if (typeof options === 'string') {
@@ -53,7 +54,7 @@ function config(options) {
 async function authenticate(_retryCount = 1) {
   try{
   if (!credsKey || !credsSecret || !baseUrl) {
-    throw new Error('No credentials set')
+    throw new Error('No credentials set. Check your env variables.')
   } else if (accessToken === null) {
     const data = {
       grant_type: "client_credentials",
@@ -71,18 +72,17 @@ async function authenticate(_retryCount = 1) {
       url: baseUrl + 'token',
     };
 
-    // const response = await axios(options)
-    const response = await axios.post(baseUrl+accessToken,{data:qs.stringify(data), auth})
+    const response = await axios(options)
     if (response.data === "" && response.status < 300 && response.status >= 200) {
       await _retryAuth(_retryCount)
     } else {
       accessToken = response.data['access_token']
-      if (accessToken === null) throw new Error('Authentication error. Check your baseUrl and credentials')
-
+      if (accessToken === null) {
+        throw new Error('Authentication error. Check your baseUrl and credentials')}
     }
   }}
   catch(error){
-    
+    throw error
   }
 }
 
