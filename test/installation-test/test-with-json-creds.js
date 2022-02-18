@@ -16,7 +16,7 @@ wrapper.config('./creds.json')
 const run = async () => {
   try{
   const bibs = await wrapper.get('bibs')
-  console.log('Got bibs:', bibs)
+  console.log('Got bibs:', bibs.entries.map(bib=>bib.id))
   }catch(e){
     console.log('error at test run',e.message)
   }
