@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nypl/sierra-wrapper": "git+https://github.com/NYPL-discovery/sierra-wrapper.git#SCC-2982",
-    "dotenv": "^16.0.0"
+    "@nypl/sierra-wrapper": "git+https://github.com/NYPL-discovery/sierra-wrapper.git#SCC-2982"
   }
 }

@@ -3,7 +3,6 @@ const fs = require('fs')
 const logger = require('./logger')
 const setLogLevel = logger.setLevel
 const qs = require('qs')
-require('dotenv').config()
 
 const RETRY_ERROR = 'retry error'
 
