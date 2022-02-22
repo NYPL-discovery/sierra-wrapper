@@ -4,7 +4,8 @@
   "description": "A node wrapper for Innovative's Sierra API v3",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test --timeout 8000"
+    "test": "standard && mocha test --timeout 8000",
+    "lint": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -29,11 +30,11 @@
     "axios-mock-adapter": "^1.20.0",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^2.5.3",
+    "mocha": "8.0.1",
     "request": "^2.88.2",
     "rewire": "^6.0.0",
     "sinon": "^13.0.1",
-    "standard": "^7.1.2"
+    "standard": "16.0.4"
   },
   "dependencies": {
     "axios": "^0.25.0",
@@ -44,5 +45,8 @@
   },
   "eslintConfig": {
     "extends": "standard"
+  },
+  "standard": {
+    "env": [ "mocha" ]
   }
 }
