@@ -177,11 +177,14 @@ describe('test', function () {
 
   describe('getBibItems', () => {
     it('should recursively return all items from a given bib', async () => {
+      wrapper = rewire('../index.js')
+      wrapper.config({ credsKey, credsSecret, credsBase })
+      const authStub = () => true
+      wrapper.__set__('authenticate', authStub)
+
       const axiosGet = sinon.stub(axios, 'get')
-      const axiosPost = sinon.stub(axios, 'post')
       const fiftyItems = { data: { entries: Array(50).fill('item') } }
       const fifteenItems = { data: { entries: Array(15).fill('item') } }
-      axiosPost.returns({ data: { access_token: '12345' } })
       axiosGet.onFirstCall().returns(fiftyItems)
       axiosGet.onSecondCall().returns(fiftyItems)
       axiosGet.onThirdCall().returns(fifteenItems)
