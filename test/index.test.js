@@ -24,12 +24,12 @@ describe('test', function () {
   beforeEach(function () {
     mockAxios = new MockAdapter(axios)
     wrapper = requireUncached('../index.js')
-    wrapper.config({ credsKey, credsSecret, credsBase })
+    wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
     auth = {
       auth:
       {
-        user: 'credsKey',
-        pass: 'credsSecret'
+        user: credsKey,
+        pass: credsSecret
       }
     }
   })
@@ -52,7 +52,7 @@ describe('test', function () {
         .onPost()
         .replyOnce(200, { access_token: '12345' })
       wrapper = rewire('../index.js')
-      wrapper.config({ credsKey, credsSecret, credsBase })
+      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
       const retryAuth = wrapper.__get__('_retryAuth')
       const retrySpy = sinon.spy(retryAuth)
       wrapper.__set__('_retryAuth', retrySpy)
@@ -104,7 +104,7 @@ describe('test', function () {
 
     it('calls reauthenticate when the access token is expired', async () => {
       wrapper = rewire('../index.js')
-      wrapper.config({ credsKey, credsSecret, credsBase })
+      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
       const reauthenticate = wrapper.__get__('_reauthenticate')
       const reauthenticateSpy = sinon.spy(reauthenticate)
       wrapper.__set__('_reauthenticate', reauthenticateSpy)
@@ -159,7 +159,7 @@ describe('test', function () {
   describe('generic post', async () => {
     it('calls reauthenticate when the access token is expired', async () => {
       wrapper = rewire('../index.js')
-      wrapper.config({ credsKey, credsSecret, credsBase })
+      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
       const reauthenticate = wrapper.__get__('_reauthenticate')
       const reauthenticateSpy = sinon.spy(reauthenticate)
       wrapper.__set__('_reauthenticate', reauthenticateSpy)
@@ -178,7 +178,7 @@ describe('test', function () {
   describe('getBibItems', () => {
     it('should recursively return all items from a given bib', async () => {
       wrapper = rewire('../index.js')
-      wrapper.config({ credsKey, credsSecret, credsBase })
+      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
       const authStub = () => true
       wrapper.__set__('authenticate', authStub)
 
