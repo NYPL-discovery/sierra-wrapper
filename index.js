@@ -36,9 +36,9 @@ function config (options) {
     }
   }
 
-  credsKey = options.credsKey
-  credsSecret = options.credsSecret
-  credsBase = options.credsBase
+  credsKey = options.key
+  credsSecret = options.secret
+  credsBase = options.base
   credsBase += credsBase.endsWith('/') ? '' : '/'
 
   if (credsKey && credsSecret && credsBase) {
