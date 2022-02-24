@@ -1,10 +1,10 @@
 var should = require('should') // eslint-disable-line
-var wrapper = require('../../index.js')
+const wrapper = require('../../index.js')
 
 describe('Tests', function () {
   this.timeout(150000)
   it('Should request an auth token - and work', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -16,7 +16,7 @@ describe('Tests', function () {
     })
   })
   it('Should request an auth token - and return a promise', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -24,13 +24,13 @@ describe('Tests', function () {
       if (error) console.log(error)
       return results
     })
-    .then((results) => {
-      results.should.be.type('string')
-    })
-    .then(done, done)
+      .then((results) => {
+        results.should.be.type('string')
+      })
+      .then(done, done)
   })
   it('Should request an auth token - and not work', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -44,7 +44,7 @@ describe('Tests', function () {
   })
 
   it('Should request a single full bib record', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -59,7 +59,7 @@ describe('Tests', function () {
   })
 
   it('Should request the items associated with a bib id - Two items', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -74,7 +74,7 @@ describe('Tests', function () {
   })
 
   it('Should request the items associated with a bib id - A lot of items', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -89,7 +89,7 @@ describe('Tests', function () {
   })
 
   it('Should request the items associated with a bib id - A lot of items 2', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -103,7 +103,7 @@ describe('Tests', function () {
     })
   })
   it('Should request a range of bib record', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -118,7 +118,7 @@ describe('Tests', function () {
     })
   })
   it('Should request a range of items record', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -132,13 +132,13 @@ describe('Tests', function () {
     })
   })
   it('Should request multiple bib records', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
-        console.log('No config: test/config.real.test.json was not found, no test credentials to use')
+      console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
     wrapper.auth((errorAuth, results) => {
       if (errorAuth) console.log(errorAuth)
-      wrapper.requestMultiBibBasic(['14628261','14628262','14628263','14628264','14628265','14628266','14628267','14628268','14628269','14628270'], (errorBibReq, results) => {
+      wrapper.requestMultiBibBasic(['14628261', '14628262', '14628263', '14628264', '14628265', '14628266', '14628267', '14628268', '14628269', '14628270'], (errorBibReq, results) => {
         if (errorBibReq) console.log(errorBibReq)
         results.data.total.should.equal(10)
         done()
@@ -146,13 +146,13 @@ describe('Tests', function () {
     })
   })
   it('Should request multiple item records', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
     wrapper.auth((errorAuth, results) => {
       if (errorAuth) console.log(errorAuth)
-      wrapper.requestMultiItemBasic(['10000000','10000100','10000200','10000300','10000400','10000500','10000600','10000700','10000800','10000900','10001000'], (errorItemReq, results) => {
+      wrapper.requestMultiItemBasic(['10000000', '10000100', '10000200', '10000300', '10000400', '10000500', '10000600', '10000700', '10000800', '10000900', '10001000'], (errorItemReq, results) => {
         if (errorItemReq) console.log(errorItemReq)
         results.data.total.should.equal(11)
         done()
@@ -160,7 +160,7 @@ describe('Tests', function () {
     })
   })
   it('Should make a get request and then call the callback', (done) => {
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -171,27 +171,29 @@ describe('Tests', function () {
         return results
       })
     })
-    .then((results) => {
-      results.should.be.type('object')
-    })
-    .then(done, done)
+      .then((results) => {
+        results.should.be.type('object')
+      })
+      .then(done, done)
   })
   it('Should make a post request and then call the callback', (done) => {
     const body = {
       json: true,
       method: 'POST',
       body: {
-        'recordType': 'i',
-        'recordNumber': 10000000,
-        'pickupLocation': 'maii2'
+        recordType: 'i',
+        recordNumber: 10000000,
+        pickupLocation: 'maii2'
       }
     }
-    const expectedResults = { code: 132,
+    const expectedResults = {
+      code: 132,
       specificCode: 2,
       httpStatus: 500,
       name: 'XCirc error',
-      description: 'XCirc error : Bib record cannot be loaded' }
-    var loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
+      description: 'XCirc error : Bib record cannot be loaded'
+    }
+    const loadedConfig = wrapper.loadConfig('./test/integration/config.real.test.json')
     if (!loadedConfig) {
       console.log('No config: test/config.real.test.json was not found, no test credentials to use')
     }
@@ -202,10 +204,10 @@ describe('Tests', function () {
         return false
       })
     })
-    .then((results) => {
-      console.log(results)
-      results.should.deepEqual(expectedResults)
-    })
-    .then(done, done)
+      .then((results) => {
+        console.log(results)
+        results.should.deepEqual(expectedResults)
+      })
+      .then(done, done)
   })
 })
