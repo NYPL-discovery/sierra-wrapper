@@ -139,7 +139,10 @@ Return format:
 | --- | --- | --- |
 | itemIds | <code>array</code> | array of item ids |
 
+## Contributing
 
-
-
+1. Cut feature branch from master
+2. Before making pull request, run npm version <update_type>, indicating patch, minor, or major changes, according to semantic versioning
+3. After PR is approved, run npm publish
+4. Go to your package page (https://npmjs.com/package/<package>) to check that the package version has been updated
 
