@@ -10,7 +10,6 @@
  */
 const wrapper = require('@nypl/sierra-wrapper')
 
-// It would be nice to be able to set logLevel as follows:
 wrapper.setLogLevel('error')
 
 const run = async () => {

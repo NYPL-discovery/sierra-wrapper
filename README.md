@@ -1,6 +1,6 @@
 # sierra-wrapper
 
-A basic node wrapper for the [III Sierra v3 API](https://sandbox.iii.com/docs/Content/titlePage.htm)
+A basic node wrapper for the [III Sierra v3/v6 API](https://sandbox.iii.com/docs/Content/titlePage.htm)
 
 The wrapper currently supports:
 
@@ -15,9 +15,14 @@ request:
 - get
 - post
 
-More endpoint will be added as the need arises.
+## Usage
 
----
+Load the client as follows:
+```
+const wrapper = require('@nypl/sierra-wrapper')
+```
+
+### Authenticating
 
 To configure credentials there are three options:
 
@@ -46,9 +51,23 @@ wrapper.config(options)
 
 3. You can also set your credentials via environment variables: `SIERRA_KEY`, `SIERRA_SECRET`, `SIERRA_BASE`
 
-----
+### Querying
 
-## config(configOrFile) ⇒ <code>boolean</code>
+The following retrieves a bunch of bib ids:
+
+```
+const printBibIds = async () => {
+  try {
+    const bibs = await wrapper.get('bibs')
+    console.log('Got bibs:', bibs.entries.map(b => b.id))
+  } catch (e) {
+    console.log(e.message)
+  }
+}
+```
+
+## API
+### config(configOrFile) ⇒ <code>boolean</code>
 Loads a config object, passed or from disk
 **Returns**: <code>boolean</code> - did it load or not
 
@@ -56,17 +75,17 @@ Loads a config object, passed or from disk
 | --- | --- | --- |
 | configOrFile | <code>object</code> &#124; <code>string</code> | The object with the credentials or a path to a json file with the credentials |
 
-## authenticate()
-Requests an auth token from the sierra API and stores it for future use. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).
+### authenticate()
+Called internally to retrieve an access token before all calls. Requests an auth token from the sierra API and stores it for future use. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).
 
-## get(path)
+### get(path)
 Makes a get request to ${exports.credsBase}${path} and returns the response. It automatically reattempts when there is an empty response from Sierra (a not uncommon error).
 
 resolves to the result:
 
 {"id":1001006,"expirationDate":"2019-01-07","patronType":10,"patronCodes":{"pcode1":"-","pcode2":"-","pcode3":2,"pcode4":0},"homeLibraryCode":"hd","message":{"code":"-","accountMessages":["LBR6@columbia.edu"]}
 
-## post(path, data)
+### post(path, data)
 Makes a post request to ${exports.credsBase}${path} and returns the response
 
 resolves to the result:
@@ -77,7 +96,7 @@ resolves to the result:
 	name: 'XCirc error',
 	description: 'XCirc error : Bib record cannot be loaded' }
 
-## getSingleBib(bibId)
+### getSingleBib(bibId)
 Requests a single bib data from the API
 
 Return format:
@@ -87,7 +106,7 @@ Return format:
 | --- | --- | --- |
 | bibId | <code>string</code> | the bnumber of the bib you want to request |
 
-## getRangeBib(bibIdStart, bibIdEnd)
+### getRangeBib(bibIdStart, bibIdEnd)
 Requests a bib range from the API
 
 Return format:
@@ -98,7 +117,7 @@ Return format:
 | bibIdStart | <code>string</code> | the bnumber of the bib you want to request |
 | bibIdEnd | <code>string</code> | the bnumber of the bib you want to request |
 
-## getRangeItem(itemIdStart, itemIdEnd)
+### getRangeItem(itemIdStart, itemIdEnd)
 Requests an item range from the API
 
 Return format:
@@ -109,7 +128,7 @@ Return format:
 | itemIdStart | <code>string</code> | the bnumber of the bib you want to request |
 | itemIdEnd | <code>string</code> | the bnumber of the bib you want to request |
 
-## getBibItems(bibId)
+### getBibItems(bibId)
 Requests all the items of a specified bib id
 Return format:
 [ [Object], [Object] ]
@@ -118,7 +137,7 @@ Return format:
 | --- | --- | --- |
 | bibId | <code>string</code> | the bnumber of the bib you want to request |
 
-## getMultiBibBasic(bibsIds)
+### getMultiBibBasic(bibsIds)
 Requests multiple bibs, but no orders or locations
 
 Return format:
@@ -129,7 +148,7 @@ Return format:
 | bibsIds | <code>array</code> | an array of bib id strings |
 
 
-## getMultiItemBasic(itemIds)
+### getMultiItemBasic(itemIds)
 Requests multiple items
 
 Return format:
@@ -146,3 +165,11 @@ Return format:
 3. After PR is approved, run npm publish
 4. Go to your package page (https://npmjs.com/package/<package>) to check that the package version has been updated
 
+## Testing
+
+Run unit tests via:
+```
+npm test
+```
+
+See [./test/installation-test](./test/installation-test) for scripts to validate a release before publication.
