@@ -110,7 +110,8 @@ async function get (path, _retryCount = 1) {
         await _reauthenticate()
         return get(path)
       }
-    } else throw error
+    }
+    throw error
   }
 }
 
@@ -139,7 +140,8 @@ async function post (path, data) {
         await _reauthenticate()
         return post(path)
       }
-    } else throw error
+    }
+    throw error
   }
 }
 
