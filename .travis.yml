@@ -1,7 +1,5 @@
 sudo: required
 dist: trusty
 language: node_js
-node_js:
-  - "stable"
 env:
 - NODE_ENV=travis
