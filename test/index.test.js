@@ -108,8 +108,8 @@ describe('test', function () {
       const reauthenticate = wrapper.__get__('_reauthenticate')
       const reauthenticateSpy = sinon.spy(reauthenticate)
       wrapper.__set__('_reauthenticate', reauthenticateSpy)
-      mockAxios.onGet()
-        .replyOnce(401).onGet().reply(200, response)
+      mockAxios.onAny()
+        .replyOnce(401).onAny().reply(200, response)
       mockAxios.onPost()
         .reply(200, { access_token: '12345' })
       await wrapper.get('books')
@@ -120,7 +120,7 @@ describe('test', function () {
     })
 
     it('retries get request 1x when given an empty response once', async () => {
-      const axiosSpy = sinon.spy(axios, 'get')
+      const axiosSpy = sinon.spy(axios, 'request')
       sinon.spy(wrapper, 'authenticate')
       mockAxios.onGet()
         .replyOnce(200, '')
@@ -131,7 +131,7 @@ describe('test', function () {
       await wrapper.get('books')
       sinon.assert.calledTwice(axiosSpy)
 
-      axios.get.restore()
+      axios.request.restore()
     })
 
     it('Throws a retry error when request is empty 3x', async () => {
@@ -167,9 +167,9 @@ describe('test', function () {
       // authenticate
       mockAxios.onPost(`${credsBase}token`, auth)
         .reply(200, { access_token: '12345' })
-        // post() call
-      mockAxios.onPost()
-        .replyOnce(401).onPost().reply(200, 'success')
+      // post() call
+      mockAxios.onAny()
+        .replyOnce(401).onAny().reply(200, 'success')
       await wrapper.post('newBooks', data)
       expect(reauthenticateSpy.called)
     })
@@ -186,9 +186,10 @@ describe('test', function () {
       // authenticate
       mockAxios.onPost(`${credsBase}token`, auth)
         .reply(200, { access_token: '12345' })
-        // post() call
-      mockAxios.onPut()
-        .replyOnce(401).onPut().reply(200, 'success')
+      // post() call
+      mockAxios.onAny()
+      mockAxios.onAny()
+        .replyOnce(401).onAny().reply(200, 'success')
       await wrapper.put('newBooks', data)
       expect(reauthenticateSpy.called)
     })
@@ -201,12 +202,12 @@ describe('test', function () {
       const authStub = () => true
       wrapper.__set__('authenticate', authStub)
 
-      const axiosGet = sinon.stub(axios, 'get')
+      const axiosRequest = sinon.stub(axios, 'request')
       const fiftyItems = { data: { entries: Array(50).fill('item') } }
       const fifteenItems = { data: { entries: Array(15).fill('item') } }
-      axiosGet.onFirstCall().returns(fiftyItems)
-      axiosGet.onSecondCall().returns(fiftyItems)
-      axiosGet.onThirdCall().returns(fifteenItems)
+      axiosRequest.onFirstCall().returns(fiftyItems)
+      axiosRequest.onSecondCall().returns(fiftyItems)
+      axiosRequest.onThirdCall().returns(fifteenItems)
 
       const items = await wrapper.getBibItems('bibId')
       expect(items.length).to.equal(115)
