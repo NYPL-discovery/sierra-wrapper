@@ -175,6 +175,25 @@ describe('test', function () {
     })
   })
 
+  describe('generic put', async () => {
+    it('calls reauthenticate when the access token is expired', async () => {
+      wrapper = rewire('../index.js')
+      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
+      const reauthenticate = wrapper.__get__('_reauthenticate')
+      const reauthenticateSpy = sinon.spy(reauthenticate)
+      wrapper.__set__('_reauthenticate', reauthenticateSpy)
+      const data = { books: ['the', 'books'] }
+      // authenticate
+      mockAxios.onPost(`${credsBase}token`, auth)
+        .reply(200, { access_token: '12345' })
+        // post() call
+      mockAxios.onPut()
+        .replyOnce(401).onPut().reply(200, 'success')
+      await wrapper.put('newBooks', data)
+      expect(reauthenticateSpy.called)
+    })
+  })
+
   describe('getBibItems', () => {
     it('should recursively return all items from a given bib', async () => {
       wrapper = rewire('../index.js')

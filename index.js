@@ -81,6 +81,46 @@ async function authenticate (_retryCount = 1) {
   }
 }
 
+async function get (path, _retryCount = 1) {
+  try {
+    const response = await _doHttpRequest('get', path)
+    if (response.data === '' && response.status < 300 && response.status >= 200) {
+      await _retryGet(path, _retryCount)
+    } else {
+      return response.data
+    }
+  } catch (error) {
+    await _handleErrors(error, get, path)
+  }
+}
+
+async function post (path, data) {
+  try {
+    const response = _doHttpRequest('post', path, data)
+    return response.data
+  } catch (error) {
+    _handleErrors(error, post, path, data)
+  }
+}
+
+async function put (path, data) {
+  try {
+    const response = _doHttpRequest('put', path, data)
+    return response.data
+  } catch (error) {
+    _handleErrors(error, put, path, data)
+  }
+}
+
+async function deleteRequest (path) {
+  try {
+    const response = _doHttpRequest('delete', path)
+    return response.data
+  } catch (error) {
+    _handleErrors(error, deleteRequest, path)
+  }
+}
+
 async function _retryAuth (_retryCount) {
   if (_retryCount <= 3) {
     logger.warning(`Authentication retry #${_retryCount} due to empty response from Sierra API`)
@@ -89,28 +129,6 @@ async function _retryAuth (_retryCount) {
   } else {
     const error = new RetryError('Authentication')
     logger.error(error.message)
-    throw error
-  }
-}
-
-async function get (path, _retryCount = 1) {
-  try {
-    await authenticate()
-    const response = await axios.get(credsBase + path, {
-      timeout: 120 * 1000, headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    if (response.data === '' && response.status < 300 && response.status >= 200) {
-      await _retryGet(path, _retryCount)
-    } else {
-      return response.data
-    }
-  } catch (error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        await _reauthenticate()
-        return get(path)
-      }
-    }
     throw error
   }
 }
@@ -127,22 +145,26 @@ async function _retryGet (path, _retryCount) {
   }
 }
 
-async function post (path, data) {
-  try {
-    await authenticate()
-    const response = await axios.post(credsBase + path, data, {
-      timeout: 120 * 1000, headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    return response.data
-  } catch (error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        await _reauthenticate()
-        return post(path)
-      }
+async function _handleErrors (error, method, path, data) {
+  if (error.response) {
+    if (error.response.status === 401) {
+      return _handleAuthError(method, path, data)
     }
-    throw error
   }
+  throw error
+}
+
+async function _handleAuthError (method, path, data) {
+  await _reauthenticate()
+  return method(path, data)
+}
+
+async function _doHttpRequest (method, path, data) {
+  await authenticate()
+  const response = await axios[method](credsBase + path, data, {
+    timeout: 120 * 1000, headers: { Authorization: `Bearer ${accessToken}` }
+  })
+  return response
 }
 
 async function _reauthenticate () {
@@ -193,6 +215,8 @@ module.exports = {
   authenticate,
   get,
   post,
+  put,
+  deleteRequest,
   config,
   getBibItems,
   getMultiBibsBasic,
