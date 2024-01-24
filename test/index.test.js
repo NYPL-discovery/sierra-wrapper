@@ -18,21 +18,11 @@ const credsKey = 'credsKey'
 const credsSecret = 'credsSecret'
 
 describe('test', function () {
-  const data = { books: ['the', 'books'] }
-  let auth
   let mockAxios
-  // let wrapper
   beforeEach(function () {
     wrapper = rewire('../index.js')
     mockAxios = new MockAdapter(axios)
     wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
-    auth = {
-      auth:
-      {
-        user: credsKey,
-        pass: credsSecret
-      }
-    }
   })
   describe('authenticate', function () {
     it('should throw an error if there are no credentials', async function () {
@@ -41,16 +31,16 @@ describe('test', function () {
     })
 
     it('should make an axios post request with the credentials', async function () {
-      mockAxios.onPost()
+      mockAxios.onPost(credsBase + 'token')
         .reply(200, { access_token: '12345' })
 
       await wrapper.authenticate()
       expect(wrapper._accessToken()).to.equal('12345')
     })
     it('retries authentication 1x when given an empty response once', async () => {
-      mockAxios.onPost()
+      mockAxios.onPost(credsBase + 'token')
         .replyOnce(200, '')
-        .onPost()
+        .onPost(credsBase + 'token')
         .replyOnce(200, { access_token: '12345' })
       wrapper = rewire('../index.js')
       wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
@@ -64,9 +54,9 @@ describe('test', function () {
     })
     it('logs a warning when there is an empty response', async () => {
       const loggerWarning = sinon.spy(logger, 'warning')
-      mockAxios.onPost()
+      mockAxios.onPost(credsBase + 'token')
         .replyOnce(200, '')
-        .onPost()
+        .onPost(credsBase + 'token')
         .replyOnce(200, { access_token: '12345' })
       await wrapper.authenticate()
 
@@ -75,7 +65,7 @@ describe('test', function () {
       logger.warning.restore()
     })
     it('Throws a RetryError when auth fails 3 times', async () => {
-      mockAxios.onPost()
+      mockAxios.onPost(credsBase + 'token')
         .reply(200, '')
       const errorMessage = 'Authentication failed after 3 attempts with empty responses'
 
@@ -84,7 +74,7 @@ describe('test', function () {
     })
     it('Logs a RetryError when auth fails 3 times', async () => {
       const loggerError = sinon.spy(logger, 'error')
-      mockAxios.onPost()
+      mockAxios.onPost(credsBase + 'token')
         .reply(200, '')
       const errorMessage = 'Authentication failed after 3 attempts with empty responses'
 
@@ -98,22 +88,22 @@ describe('test', function () {
   })
 
   describe('generic get', () => {
+    beforeEach(() => {
+      mockAxios.onPost(credsBase + 'token')
+        .reply(200, { access_token: '12345' })
+    })
     const response = 'all of the books'
     it('returns data', async () => {
-      mockAxios.onPost()
-        .reply(200, { access_token: '12345' })
-      mockAxios.onGet()
+      mockAxios.onGet(credsBase + 'spaghetti')
         .reply(200, response)
-
-      expect(await wrapper.get()).to.equal(response)
+      expect(await wrapper.get('spaghetti')).to.equal(response)
     })
 
     it('retries get request 1x when given an empty response once', async () => {
-      const getCalls = mockAxios.onGet()
+      const getCalls = mockAxios.onGet(credsBase + 'books')
         .replyOnce(200, '')
-        .onGet()
+        .onGet(credsBase + 'books')
         .replyOnce(200, response)
-      mockAxios.onPost().reply(200, { access_token: '12345' })
 
       await wrapper.get('books')
 
@@ -121,21 +111,19 @@ describe('test', function () {
     })
 
     it('Throws a retry error when request is empty 3x', async () => {
-      mockAxios.onPost().reply(200, { access_token: '12345' })
-      mockAxios.onGet()
+      mockAxios.onGet(credsBase + 'books')
         .reply(200, '')
       const errorMessage = 'Get request failed after 3 attempts with empty responses'
-      await expect(wrapper.get()).to.be.rejectedWith(wrapper.RetryError,
+      await expect(wrapper.get('books')).to.be.rejectedWith(wrapper.RetryError,
         errorMessage)
     })
 
     it('Logs a retry error when request is empty 3x', async () => {
       const loggerError = sinon.spy(logger, 'error')
-      mockAxios.onPost().reply(200, { access_token: '12345' })
-      mockAxios.onGet()
+      mockAxios.onGet(credsBase + 'books')
         .reply(200, '')
       const errorMessage = 'Get request failed after 3 attempts with empty responses'
-      await expect(wrapper.get()).to.be.rejectedWith(wrapper.RetryError,
+      await expect(wrapper.get('books')).to.be.rejectedWith(wrapper.RetryError,
         errorMessage)
       expect(loggerError.calledWith(errorMessage))
       logger.error.restore()
@@ -145,17 +133,18 @@ describe('test', function () {
   describe('reauthentication for expired access token', () => {
     let handleAuthErrorSpy
     const path = 'path'
+    const data = 'the books'
     beforeEach(() => {
       const _handleAuthError = wrapper.__get__('_handleAuthError')
       handleAuthErrorSpy = sinon.spy(_handleAuthError)
       wrapper.__set__('_handleAuthError', handleAuthErrorSpy)
       // mock successful auth call
-      mockAxios.onPost(`${credsBase}token`, auth)
+      mockAxios.onPost(`${credsBase}token`)
         .reply(200, { access_token: '12345' })
       // mock response to first tested request with expired token
-      mockAxios.onAny().replyOnce(401)
+      mockAxios.onAny(credsBase + 'newBooks').replyOnce(401)
         // mock retry with a success
-        .onAny().reply(200, 'success')
+        .onAny(credsBase + 'newBooks').reply(200, 'success')
     })
     after(() => { wrapper = requireUncached('../index.js') })
     it('post', async () => {
@@ -172,7 +161,7 @@ describe('test', function () {
       expect(handleAuthErrorSpy.calledWith(wrapper.deleteRequest, path, data))
     })
     it('get', async () => {
-      await wrapper.get('books')
+      await wrapper.get('newBooks')
       expect(handleAuthErrorSpy.calledWith(wrapper.get, path, data))
     })
   })
@@ -194,8 +183,11 @@ describe('test', function () {
   })
   describe('makes a request with the rights headers, method, path, and data', () => {
     let axiosCalls
+    const data = { title: 'spaghetti' }
     beforeEach(() => {
-      axiosCalls = mockAxios.onAny().reply(200, { access_token: '12345' }).onAny().reply(200, 'success')
+      axiosCalls = mockAxios
+        .onPost(credsBase + 'token').reply(200, { access_token: '12345' })
+        .onAny(credsBase + 'path').reply(200, 'success')
     })
     it('put', async () => {
       await wrapper.put('path', data)
@@ -204,7 +196,7 @@ describe('test', function () {
       expect(putCalls.length).to.equal(1)
       expect(putCalls[0].headers.Authorization).to.equal('Bearer 12345')
       expect(putCalls[0].method).to.equal('put')
-      expect(putCalls[0].url).to.equal('credsBase.com/path')
+      expect(putCalls[0].url).to.equal(credsBase + 'path')
       expect(JSON.parse(putCalls[0].data)).to.deep.equal(data)
     })
     it('post', async () => {
@@ -215,7 +207,7 @@ describe('test', function () {
       expect(postCalls.length).to.equal(2)
       expect(postCalls[1].headers.Authorization).to.equal('Bearer 12345')
       expect(postCalls[1].method).to.equal('post')
-      expect(postCalls[1].url).to.equal('credsBase.com/path')
+      expect(postCalls[1].url).to.equal(credsBase + 'path')
       expect(JSON.parse(postCalls[1].data)).to.deep.equal(data)
     })
     it('delete', async () => {
@@ -225,7 +217,7 @@ describe('test', function () {
       expect(deleteCalls.length).to.equal(1)
       expect(deleteCalls[0].headers.Authorization).to.equal('Bearer 12345')
       expect(deleteCalls[0].method).to.equal('delete')
-      expect(deleteCalls[0].url).to.equal('credsBase.com/path')
+      expect(deleteCalls[0].url).to.equal(credsBase + 'path')
     })
     it('get', async () => {
       await wrapper.get('path')
@@ -234,7 +226,7 @@ describe('test', function () {
       expect(getCalls.length).to.equal(1)
       expect(getCalls[0].headers.Authorization).to.equal('Bearer 12345')
       expect(getCalls[0].method).to.equal('get')
-      expect(getCalls[0].url).to.equal('credsBase.com/path')
+      expect(getCalls[0].url).to.equal(credsBase + 'path')
     })
   })
 })
