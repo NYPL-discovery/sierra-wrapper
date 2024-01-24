@@ -9,11 +9,13 @@ The wrapper currently supports:
 - Returning a single, multiple and range Item records
 - Returning item records belonging to a single Bib record
 
-In addition there are general methods that can be used to make any GET or POST
-request:
+In addition there are general methods that can be used to make any GET POST PUT 
+or DELETE request:
 
 - get
 - post
+- deleteRequest
+- put
 
 ## Usage
 

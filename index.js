@@ -99,7 +99,7 @@ async function post (path, data) {
     const response = await _doHttpRequest('post', path, data)
     return response.data
   } catch (error) {
-    return await _handleErrors(error, deleteRequest, path)
+    return await _handleErrors(error, post, path)
   }
 }
 
@@ -108,7 +108,7 @@ async function put (path, data) {
     const response = await _doHttpRequest('put', path, data)
     return response.data
   } catch (error) {
-    return await _handleErrors(error, deleteRequest, path)
+    return await _handleErrors(error, put, path)
   }
 }
 
