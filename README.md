@@ -85,7 +85,9 @@ Makes a get request to ${exports.credsBase}${path} and returns the response. It 
 
 resolves to the result:
 
+```
 {"id":1001006,"expirationDate":"2019-01-07","patronType":10,"patronCodes":{"pcode1":"-","pcode2":"-","pcode3":2,"pcode4":0},"homeLibraryCode":"hd","message":{"code":"-","accountMessages":["LBR6@columbia.edu"]}
+```
 
 ### post(path, data)
 Makes a post request to ${exports.credsBase}${path} and returns the response

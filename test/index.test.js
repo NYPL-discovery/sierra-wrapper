@@ -133,7 +133,7 @@ describe('test', function () {
   describe('reauthentication for expired access token', () => {
     let handleAuthErrorSpy
     const path = 'path'
-    const data = 'the books'
+    const data = { books: 'the books' }
     beforeEach(() => {
       const _handleAuthError = wrapper.__get__('_handleAuthError')
       handleAuthErrorSpy = sinon.spy(_handleAuthError)
@@ -142,27 +142,26 @@ describe('test', function () {
       mockAxios.onPost(`${credsBase}token`)
         .reply(200, { access_token: '12345' })
       // mock response to first tested request with expired token
-      mockAxios.onAny(credsBase + 'newBooks').replyOnce(401)
+      mockAxios.onAny(credsBase + path).replyOnce(401)
         // mock retry with a success
-        .onAny(credsBase + 'newBooks').reply(200, 'success')
+        .onAny(credsBase + path).reply(200, 'success')
     })
     after(() => { wrapper = requireUncached('../index.js') })
     it('post', async () => {
-      await wrapper.post('newBooks', data)
-
-      expect(handleAuthErrorSpy.calledWith(wrapper.post, path, data))
+      await wrapper.post(path, data)
+      expect(handleAuthErrorSpy.calledWith(wrapper.post, path, data)).to.equal(true)
     })
     it('put', async () => {
-      await wrapper.put('newBooks', data)
-      expect(handleAuthErrorSpy.calledWith(wrapper.put, path, data))
+      await wrapper.put(path, data)
+      expect(handleAuthErrorSpy.calledWith(wrapper.put, path, data)).to.equal(true)
     })
     it('delete', async () => {
-      await wrapper.deleteRequest('newBooks')
-      expect(handleAuthErrorSpy.calledWith(wrapper.deleteRequest, path, data))
+      await wrapper.deleteRequest(path)
+      expect(handleAuthErrorSpy.calledWith(wrapper.deleteRequest, path)).to.equal(true)
     })
     it('get', async () => {
-      await wrapper.get('newBooks')
-      expect(handleAuthErrorSpy.calledWith(wrapper.get, path, data))
+      await wrapper.get(path)
+      expect(handleAuthErrorSpy.calledWith(wrapper.get, path)).to.equal(true)
     })
   })
 

@@ -99,7 +99,7 @@ async function post (path, data) {
     const response = await _doHttpRequest('post', path, data)
     return response.data
   } catch (error) {
-    return await _handleErrors(error, post, path)
+    return await _handleErrors(error, post, path, data)
   }
 }
 
@@ -108,7 +108,7 @@ async function put (path, data) {
     const response = await _doHttpRequest('put', path, data)
     return response.data
   } catch (error) {
-    return await _handleErrors(error, put, path)
+    return await _handleErrors(error, put, path, data)
   }
 }
 
@@ -146,10 +146,8 @@ async function _retryGet (path, _retryCount) {
 }
 
 async function _handleErrors (error, method, path, data) {
-  if (error.response) {
-    if (error.response.status === 401) {
-      return _handleAuthError(method, path, data)
-    }
+  if (error.response && error.response.status === 401) {
+    return _handleAuthError(method, path, data)
   }
   throw error
 }
