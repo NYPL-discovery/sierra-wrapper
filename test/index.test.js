@@ -177,8 +177,6 @@ describe('test', function () {
 
       const items = await wrapper.getBibItems('bibId')
       expect(items.length).to.equal(115)
-
-      // axiosRequest.restore()
     })
   })
   describe('makes a request with the rights headers, method, path, and data', () => {
