@@ -18,12 +18,13 @@ const credsKey = 'credsKey'
 const credsSecret = 'credsSecret'
 
 describe('test', function () {
+  const data = { books: ['the', 'books'] }
   let auth
   let mockAxios
-
+  // let wrapper
   beforeEach(function () {
+    wrapper = rewire('../index.js')
     mockAxios = new MockAdapter(axios)
-    wrapper = requireUncached('../index.js')
     wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
     auth = {
       auth:
@@ -33,12 +34,12 @@ describe('test', function () {
       }
     }
   })
-
   describe('authenticate', function () {
     it('should throw an error if there are no credentials', async function () {
-      wrapper = requireUncached('../index.js')
+      const wrapper = requireUncached('../index.js')
       await expect(wrapper.authenticate()).to.be.rejectedWith('No credentials set')
     })
+
     it('should make an axios post request with the credentials', async function () {
       mockAxios.onPost()
         .reply(200, { access_token: '12345' })
@@ -56,6 +57,7 @@ describe('test', function () {
       const retryAuth = wrapper.__get__('_retryAuth')
       const retrySpy = sinon.spy(retryAuth)
       wrapper.__set__('_retryAuth', retrySpy)
+
       await wrapper.authenticate()
 
       sinon.assert.calledOnce(retrySpy)
@@ -76,6 +78,7 @@ describe('test', function () {
       mockAxios.onPost()
         .reply(200, '')
       const errorMessage = 'Authentication failed after 3 attempts with empty responses'
+
       await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError, errorMessage
       )
     })
@@ -84,9 +87,12 @@ describe('test', function () {
       mockAxios.onPost()
         .reply(200, '')
       const errorMessage = 'Authentication failed after 3 attempts with empty responses'
+
       await expect(wrapper.authenticate()).to.be.rejectedWith(wrapper.RetryError, errorMessage
       )
+
       expect(loggerError.calledWith(errorMessage))
+
       logger.error.restore()
     })
   })
@@ -102,36 +108,16 @@ describe('test', function () {
       expect(await wrapper.get()).to.equal(response)
     })
 
-    it('calls reauthenticate when the access token is expired', async () => {
-      wrapper = rewire('../index.js')
-      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
-      const reauthenticate = wrapper.__get__('_reauthenticate')
-      const reauthenticateSpy = sinon.spy(reauthenticate)
-      wrapper.__set__('_reauthenticate', reauthenticateSpy)
-      mockAxios.onAny()
-        .replyOnce(401).onAny().reply(200, response)
-      mockAxios.onPost()
-        .reply(200, { access_token: '12345' })
-      await wrapper.get('books')
-
-      expect(reauthenticateSpy.called)
-
-      wrapper = requireUncached('../index.js')
-    })
-
     it('retries get request 1x when given an empty response once', async () => {
-      const axiosSpy = sinon.spy(axios, 'request')
-      sinon.spy(wrapper, 'authenticate')
-      mockAxios.onGet()
+      const getCalls = mockAxios.onGet()
         .replyOnce(200, '')
         .onGet()
         .replyOnce(200, response)
       mockAxios.onPost().reply(200, { access_token: '12345' })
 
       await wrapper.get('books')
-      sinon.assert.calledTwice(axiosSpy)
 
-      axios.request.restore()
+      expect(getCalls.history.get.length).to.equal(2)
     })
 
     it('Throws a retry error when request is empty 3x', async () => {
@@ -156,61 +142,99 @@ describe('test', function () {
     })
   })
 
-  describe('generic post', async () => {
-    it('calls reauthenticate when the access token is expired', async () => {
-      wrapper = rewire('../index.js')
-      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
-      const reauthenticate = wrapper.__get__('_reauthenticate')
-      const reauthenticateSpy = sinon.spy(reauthenticate)
-      wrapper.__set__('_reauthenticate', reauthenticateSpy)
-      const data = { books: ['the', 'books'] }
-      // authenticate
+  describe('reauthentication for expired access token', () => {
+    let handleAuthErrorSpy
+    const path = 'path'
+    beforeEach(() => {
+      const _handleAuthError = wrapper.__get__('_handleAuthError')
+      handleAuthErrorSpy = sinon.spy(_handleAuthError)
+      wrapper.__set__('_handleAuthError', handleAuthErrorSpy)
+      // mock successful auth call
       mockAxios.onPost(`${credsBase}token`, auth)
         .reply(200, { access_token: '12345' })
-      // post() call
-      mockAxios.onAny()
-        .replyOnce(401).onAny().reply(200, 'success')
-      await wrapper.post('newBooks', data)
-      expect(reauthenticateSpy.called)
+      // mock response to first tested request with expired token
+      mockAxios.onAny().replyOnce(401)
+        // mock retry with a success
+        .onAny().reply(200, 'success')
     })
-  })
+    after(() => { wrapper = requireUncached('../index.js') })
+    it('post', async () => {
+      await wrapper.post('newBooks', data)
 
-  describe('generic put', async () => {
-    it('calls reauthenticate when the access token is expired', async () => {
-      wrapper = rewire('../index.js')
-      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
-      const reauthenticate = wrapper.__get__('_reauthenticate')
-      const reauthenticateSpy = sinon.spy(reauthenticate)
-      wrapper.__set__('_reauthenticate', reauthenticateSpy)
-      const data = { books: ['the', 'books'] }
-      // authenticate
-      mockAxios.onPost(`${credsBase}token`, auth)
-        .reply(200, { access_token: '12345' })
-      // post() call
-      mockAxios.onAny()
-      mockAxios.onAny()
-        .replyOnce(401).onAny().reply(200, 'success')
+      expect(handleAuthErrorSpy.calledWith(wrapper.post, path, data))
+    })
+    it('put', async () => {
       await wrapper.put('newBooks', data)
-      expect(reauthenticateSpy.called)
+      expect(handleAuthErrorSpy.calledWith(wrapper.put, path, data))
+    })
+    it('delete', async () => {
+      await wrapper.deleteRequest('newBooks')
+      expect(handleAuthErrorSpy.calledWith(wrapper.deleteRequest, path, data))
+    })
+    it('get', async () => {
+      await wrapper.get('books')
+      expect(handleAuthErrorSpy.calledWith(wrapper.get, path, data))
     })
   })
 
   describe('getBibItems', () => {
     it('should recursively return all items from a given bib', async () => {
-      wrapper = rewire('../index.js')
-      wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
       const authStub = () => true
       wrapper.__set__('authenticate', authStub)
-
-      const axiosRequest = sinon.stub(axios, 'request')
-      const fiftyItems = { data: { entries: Array(50).fill('item') } }
-      const fifteenItems = { data: { entries: Array(15).fill('item') } }
-      axiosRequest.onFirstCall().returns(fiftyItems)
-      axiosRequest.onSecondCall().returns(fiftyItems)
-      axiosRequest.onThirdCall().returns(fifteenItems)
+      mockAxios
+        .onAny(credsBase + 'items/?bibIds=bibId&fields=default,fixedFields,varFields&offset=0').reply(200, { entries: Array(50).fill('item') })
+        .onAny(credsBase + 'items/?bibIds=bibId&fields=default,fixedFields,varFields&offset=50').reply(200, { entries: Array(50).fill('item') })
+        .onAny(credsBase + 'items/?bibIds=bibId&fields=default,fixedFields,varFields&offset=100').reply(200, { entries: Array(15).fill('item') })
 
       const items = await wrapper.getBibItems('bibId')
       expect(items.length).to.equal(115)
+
+      // axiosRequest.restore()
+    })
+  })
+  describe('makes a request with the rights headers, method, path, and data', () => {
+    let axiosCalls
+    beforeEach(() => {
+      axiosCalls = mockAxios.onAny().reply(200, { access_token: '12345' }).onAny().reply(200, 'success')
+    })
+    it('put', async () => {
+      await wrapper.put('path', data)
+
+      const putCalls = axiosCalls.history.put
+      expect(putCalls.length).to.equal(1)
+      expect(putCalls[0].headers.Authorization).to.equal('Bearer 12345')
+      expect(putCalls[0].method).to.equal('put')
+      expect(putCalls[0].url).to.equal('credsBase.com/path')
+      expect(JSON.parse(putCalls[0].data)).to.deep.equal(data)
+    })
+    it('post', async () => {
+      await wrapper.post('path', data)
+
+      const postCalls = axiosCalls.history.post
+      // 2 calls because the first one is auth post
+      expect(postCalls.length).to.equal(2)
+      expect(postCalls[1].headers.Authorization).to.equal('Bearer 12345')
+      expect(postCalls[1].method).to.equal('post')
+      expect(postCalls[1].url).to.equal('credsBase.com/path')
+      expect(JSON.parse(postCalls[1].data)).to.deep.equal(data)
+    })
+    it('delete', async () => {
+      await wrapper.deleteRequest('path')
+
+      const deleteCalls = axiosCalls.history.delete
+      expect(deleteCalls.length).to.equal(1)
+      expect(deleteCalls[0].headers.Authorization).to.equal('Bearer 12345')
+      expect(deleteCalls[0].method).to.equal('delete')
+      expect(deleteCalls[0].url).to.equal('credsBase.com/path')
+    })
+    it('get', async () => {
+      await wrapper.get('path')
+
+      const getCalls = axiosCalls.history.get
+      expect(getCalls.length).to.equal(1)
+      expect(getCalls[0].headers.Authorization).to.equal('Bearer 12345')
+      expect(getCalls[0].method).to.equal('get')
+      expect(getCalls[0].url).to.equal('credsBase.com/path')
     })
   })
 })

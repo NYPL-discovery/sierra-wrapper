@@ -90,7 +90,7 @@ async function get (path, _retryCount = 1) {
       return response.data
     }
   } catch (error) {
-    return await _handleErrors(error, deleteRequest, path)
+    return await _handleErrors(error, get, path)
   }
 }
 
@@ -161,7 +161,7 @@ async function _handleAuthError (method, path, data) {
 
 async function _doHttpRequest (method, path, data) {
   await authenticate()
-  const response = await axios.request({
+  const response = await axios({
     method,
     url: credsBase + path,
     data,
