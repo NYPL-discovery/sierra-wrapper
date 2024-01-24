@@ -100,6 +100,12 @@ resolves to the result:
 	name: 'XCirc error',
 	description: 'XCirc error : Bib record cannot be loaded' }
 
+### put(path, data)
+Makes a post request to ${exports.credsBase}${path}. The response is just a status code.
+
+### deleteRequest(path)
+Makes a delete request to ${exports.credsBase}${path}. The response is just a status code.
+
 ### getSingleBib(bibId)
 Requests a single bib data from the API
 
