@@ -5,12 +5,12 @@ const setLogLevel = logger.setLevel
 const qs = require('qs')
 
 const RETRY_ERROR = 'retry error'
-
+const MAX_RETRIES = 3
 class RetryError extends Error {
   constructor (type) {
     super(type)
     this.name = RETRY_ERROR
-    this.message = `${type} failed after 3 attempts with empty responses`
+    this.message = `${type} failed after ${MAX_RETRIES} attempts with empty responses`
   }
 }
 const delay = async (time) => new Promise((resolve, reject) => setTimeout(resolve, time))
@@ -81,8 +81,48 @@ async function authenticate (_retryCount = 1) {
   }
 }
 
+async function get (path, _retryCount = 1) {
+  try {
+    const response = await _doHttpRequest('get', path)
+    if (response.data === '' && response.status < 300 && response.status >= 200) {
+      await _retryGet(path, _retryCount)
+    } else {
+      return response.data
+    }
+  } catch (error) {
+    return await _handleErrors(error, get, path)
+  }
+}
+
+async function post (path, data) {
+  try {
+    const response = await _doHttpRequest('post', path, data)
+    return response.data
+  } catch (error) {
+    return await _handleErrors(error, post, path, data)
+  }
+}
+
+async function put (path, data) {
+  try {
+    const response = await _doHttpRequest('put', path, data)
+    return response.data
+  } catch (error) {
+    return await _handleErrors(error, put, path, data)
+  }
+}
+
+async function deleteRequest (path) {
+  try {
+    const response = await _doHttpRequest('delete', path)
+    return response.data
+  } catch (error) {
+    return await _handleErrors(error, deleteRequest, path)
+  }
+}
+
 async function _retryAuth (_retryCount) {
-  if (_retryCount <= 3) {
+  if (_retryCount <= MAX_RETRIES) {
     logger.warning(`Authentication retry #${_retryCount} due to empty response from Sierra API`)
     await delay(1000 * Math.pow(2, _retryCount - 1))
     await authenticate(_retryCount + 1)
@@ -93,30 +133,8 @@ async function _retryAuth (_retryCount) {
   }
 }
 
-async function get (path, _retryCount = 1) {
-  try {
-    await authenticate()
-    const response = await axios.get(credsBase + path, {
-      timeout: 120 * 1000, headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    if (response.data === '' && response.status < 300 && response.status >= 200) {
-      await _retryGet(path, _retryCount)
-    } else {
-      return response.data
-    }
-  } catch (error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        await _reauthenticate()
-        return get(path)
-      }
-    }
-    throw error
-  }
-}
-
 async function _retryGet (path, _retryCount) {
-  if (_retryCount <= 3) {
+  if (_retryCount <= MAX_RETRIES) {
     logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
     await delay(1000 * Math.pow(2, _retryCount - 1))
     await get(path, _retryCount + 1)
@@ -127,22 +145,28 @@ async function _retryGet (path, _retryCount) {
   }
 }
 
-async function post (path, data) {
-  try {
-    await authenticate()
-    const response = await axios.post(credsBase + path, data, {
-      timeout: 120 * 1000, headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    return response.data
-  } catch (error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        await _reauthenticate()
-        return post(path)
-      }
-    }
-    throw error
+async function _handleErrors (error, method, path, data) {
+  if (error.response && error.response.status === 401) {
+    return _handleAuthError(method, path, data)
   }
+  throw error
+}
+
+async function _handleAuthError (method, path, data) {
+  await _reauthenticate()
+  return method(path, data)
+}
+
+async function _doHttpRequest (method, path, data) {
+  await authenticate()
+  const response = await axios({
+    method,
+    url: credsBase + path,
+    data,
+    timeout: 120 * 1000,
+    headers: { Authorization: `Bearer ${accessToken}` }
+  })
+  return response
 }
 
 async function _reauthenticate () {
@@ -193,6 +217,8 @@ module.exports = {
   authenticate,
   get,
   post,
+  put,
+  deleteRequest,
   config,
   getBibItems,
   getMultiBibsBasic,

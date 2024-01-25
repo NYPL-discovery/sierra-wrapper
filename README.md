@@ -9,11 +9,13 @@ The wrapper currently supports:
 - Returning a single, multiple and range Item records
 - Returning item records belonging to a single Bib record
 
-In addition there are general methods that can be used to make any GET or POST
-request:
+In addition there are general methods that can be used to make any GET POST PUT 
+or DELETE request:
 
 - get
 - post
+- deleteRequest
+- put
 
 ## Usage
 
@@ -83,7 +85,9 @@ Makes a get request to ${exports.credsBase}${path} and returns the response. It 
 
 resolves to the result:
 
+```
 {"id":1001006,"expirationDate":"2019-01-07","patronType":10,"patronCodes":{"pcode1":"-","pcode2":"-","pcode3":2,"pcode4":0},"homeLibraryCode":"hd","message":{"code":"-","accountMessages":["LBR6@columbia.edu"]}
+```
 
 ### post(path, data)
 Makes a post request to ${exports.credsBase}${path} and returns the response
@@ -95,6 +99,12 @@ resolves to the result:
 	httpStatus: 500,
 	name: 'XCirc error',
 	description: 'XCirc error : Bib record cannot be loaded' }
+
+### put(path, data)
+Makes a post request to ${exports.credsBase}${path}. The response is just a status code.
+
+### deleteRequest(path)
+Makes a delete request to ${exports.credsBase}${path}. The response is just a status code.
 
 ### getSingleBib(bibId)
 Requests a single bib data from the API
