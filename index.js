@@ -68,15 +68,20 @@ async function authenticate (_retryCount = 1) {
       auth,
       url: credsBase + 'token'
     }
-
-    const response = await axios(options)
-    if (response.data === '' && response.status < 300 && response.status >= 200) {
-      await _retryAuth(_retryCount)
-    } else {
-      accessToken = response.data.access_token
-      if (accessToken === null) {
-        throw new Error('Authentication error. Check your credsBase and credentials')
+    let response
+    try {
+      response = await axios(options)
+      // check for mysterious empty 200 response from Sierra API and retry auth
+      if (response.data === '' && response.status < 300 && response.status >= 200) {
+        await _retryAuth(_retryCount)
+      } else {
+        accessToken = response.data.access_token
       }
+    } catch (e) {
+      // maxed out Retries
+      if (e instanceof RetryError) throw e
+      // other auth error - probably bad credentials
+      else throw new Error('Sierra wrapper authentication error. Check your credsBase and credentials')
     }
   }
 }
