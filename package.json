@@ -37,7 +37,7 @@
     "standard": "16.0.4"
   },
   "dependencies": {
-    "axios": "^0.25.0",
+    "axios": "^1.7.9",
     "highland": "^2.8.1",
     "qs": "^6.10.3",
     "should": "^13.2.3",
