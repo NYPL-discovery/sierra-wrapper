@@ -57,25 +57,26 @@ async function authenticate (_retryCount = 1) {
       grant_type: 'client_credentials'
     }
 
-    const auth = {
-      username: credsKey,
-      password: credsSecret
-    }
+    const path = credsBase + 'token'
+    const creds = Buffer.from(`${credsKey}:${credsSecret}`).toString('base64')
 
     const options = {
-      method: 'post',
-      data: qs.stringify(data),
-      auth,
-      url: credsBase + 'token'
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        Authorization: `Basic ${creds}`
+      }
     }
+
     let response
     try {
-      response = await axios(options)
+      response = await fetch(path, options)
+      let json = await response.json()
       // check for mysterious empty 200 response from Sierra API and retry auth
-      if (response.data === '' && response.status < 300 && response.status >= 200) {
+      if (json === '' && response.status < 300 && response.status >= 200) {
         await _retryAuth(_retryCount)
       } else {
-        accessToken = response.data.access_token
+        accessToken = json.access_token
       }
     } catch (e) {
       // maxed out Retries
@@ -164,14 +165,16 @@ async function _handleAuthError (method, path, data) {
 
 async function _doHttpRequest (method, path, data) {
   await authenticate()
-  const response = await axios({
+  const options = {
     method,
-    url: credsBase + path,
-    data,
-    timeout: 120 * 1000,
+    signal: AbortSignal.timeout(5000),
     headers: { Authorization: `Bearer ${accessToken}` }
-  })
-  return response
+  }
+  if (data) { options.body = JSON.stringify(data) }
+  console.log('info: ', credsBase + path, options)
+  const response = await fetch(credsBase + path, options)
+  const json = await response.json()
+  return { data: json, status: response.status }
 }
 
 async function _reauthenticate () {
@@ -236,5 +239,6 @@ module.exports = {
   _accessToken: () => accessToken,
   RetryError,
   _reauthenticate,
-  _retryAuth
+  _retryAuth,
+  _doHttpRequest
 }
