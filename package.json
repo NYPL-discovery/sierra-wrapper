@@ -29,14 +29,13 @@
   "devDependencies": {
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^8.4.0",
+    "mocha": "11.7.5",
     "rewire": "^6.0.0",
     "sinon": "^13.0.1",
     "standard": "17.1.2"
   },
   "dependencies": {
     "highland": "^2.8.1",
-    "qs": "^6.10.3",
     "should": "^13.2.3",
     "winston": "^3.5.1"
   },
