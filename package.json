@@ -4,7 +4,7 @@
   "description": "A node wrapper for Innovative's Sierra API v3",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test --timeout 8000",
+    "test": "standard && mocha test --timeout 8000",
     "lint": "standard --fix"
   },
   "repository": {
@@ -33,7 +33,7 @@
     "request": "^2.88.2",
     "rewire": "^6.0.0",
     "sinon": "^13.0.1",
-    "standard": "16.0.4"
+    "standard": "17.1.2"
   },
   "dependencies": {
     "highland": "^2.8.1",

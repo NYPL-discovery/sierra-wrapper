@@ -28,7 +28,6 @@ describe('test', function () {
     })
 
     it('should make a fetch post request with the credentials', async function () {
-
       wrapper.__set__('fetch', (path, options) => {
         if (path === credsBase + 'token' && options.headers.Authorization === 'Basic Y3JlZHNLZXk6Y3JlZHNTZWNyZXQ=') {
           return { status: 200, json: () => { return { access_token: '12345' } } }
@@ -250,7 +249,6 @@ describe('test', function () {
     let fetchCalls
     const data = { title: 'spaghetti' }
     beforeEach(() => {
-
       fetchCalls = []
       wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
       wrapper.__set__('fetch', (path, options) => {

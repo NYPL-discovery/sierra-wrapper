@@ -1,7 +1,6 @@
 const fs = require('fs')
 const logger = require('./logger')
 const setLogLevel = logger.setLevel
-const qs = require('qs')
 
 const RETRY_ERROR = 'retry error'
 const MAX_RETRIES = 3
@@ -78,7 +77,7 @@ async function authenticate (_retryCount = 1) {
     let response
     try {
       response = await fetch(path, options)
-      let json = await response.json()
+      const json = await response.json()
       // check for mysterious empty 200 response from Sierra API and retry auth
       if (json === '' && response.status < 300 && response.status >= 200) {
         await _retryAuth(_retryCount)
