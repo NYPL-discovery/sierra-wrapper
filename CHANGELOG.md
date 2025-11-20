@@ -1,4 +1,8 @@
 # Changelog
+### v1.2
+Remove axios and replace with fetch
+Also removes some other unused packages that caused high or critical errors
+
 ### v1.1.1
 Add error handling around failed authentication to indicate bad creds supplied
 
