@@ -13,6 +13,14 @@ class RetryError extends Error {
     this.message = `${type} failed after ${MAX_RETRIES} attempts with empty responses`
   }
 }
+
+class HttpError extends Error {
+  constructor (message, resp) {
+    super(message)
+    this.response = resp
+  }
+}
+
 const delay = async (time) => new Promise((resolve, reject) => setTimeout(resolve, time))
 
 let accessToken = null
@@ -61,7 +69,7 @@ async function authenticate (_retryCount = 1) {
     const creds = Buffer.from(`${credsKey}:${credsSecret}`).toString('base64')
 
     const options = {
-      method: 'POST',
+      method: 'post',
       body: JSON.stringify(data),
       headers: {
         Authorization: `Basic ${creds}`
@@ -91,7 +99,7 @@ async function get (path, _retryCount = 1) {
   try {
     const response = await _doHttpRequest('get', path)
     if (response.data === '' && response.status < 300 && response.status >= 200) {
-      await _retryGet(path, _retryCount)
+      return await _retryGet(path, _retryCount)
     } else {
       return response.data
     }
@@ -143,7 +151,7 @@ async function _retryGet (path, _retryCount) {
   if (_retryCount <= MAX_RETRIES) {
     logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
     await delay(1000 * Math.pow(2, _retryCount - 1))
-    await get(path, _retryCount + 1)
+    return await get(path, _retryCount + 1)
   } else {
     const error = new RetryError('Get request')
     logger.error(error.message)
@@ -171,9 +179,11 @@ async function _doHttpRequest (method, path, data) {
     headers: { Authorization: `Bearer ${accessToken}` }
   }
   if (data) { options.body = JSON.stringify(data) }
-  console.log('info: ', credsBase + path, options)
   const response = await fetch(credsBase + path, options)
   const json = await response.json()
+  if (response.status >= 400) {
+    throw new HttpError('Http request error', response)
+  }
   return { data: json, status: response.status }
 }
 
