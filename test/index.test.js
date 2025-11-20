@@ -4,8 +4,6 @@ function requireUncached (module) {
   return require(module)
 }
 let wrapper
-const MockAdapter = require('axios-mock-adapter')
-const axios = require('axios')
 const chai = require('chai')
 const { expect } = chai
 chai.use(require('chai-as-promised'))
@@ -18,7 +16,6 @@ const credsKey = 'credsKey'
 const credsSecret = 'credsSecret'
 
 describe('test', function () {
-  let mockAxios
   beforeEach(function () {
     wrapper = rewire('../index.js')
     wrapper.config({ key: credsKey, secret: credsSecret, base: credsBase })
@@ -30,7 +27,7 @@ describe('test', function () {
       await expect(wrapper.authenticate()).to.be.rejectedWith('No credentials set')
     })
 
-    it('should make an axios post request with the credentials', async function () {
+    it('should make a fetch post request with the credentials', async function () {
 
       wrapper.__set__('fetch', (path, options) => {
         if (path === credsBase + 'token' && options.headers.Authorization === 'Basic Y3JlZHNLZXk6Y3JlZHNTZWNyZXQ=') {
