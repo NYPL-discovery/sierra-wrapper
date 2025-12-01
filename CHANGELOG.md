@@ -1,5 +1,5 @@
 # Changelog
-### v1.2
+### v1.2.0
 Remove axios and replace with fetch
 Also removes some other unused packages that caused high or critical errors
 
