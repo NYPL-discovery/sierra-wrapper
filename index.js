@@ -1,8 +1,6 @@
-const axios = require('axios')
 const fs = require('fs')
 const logger = require('./logger')
 const setLogLevel = logger.setLevel
-const qs = require('qs')
 
 const RETRY_ERROR = 'retry error'
 const MAX_RETRIES = 3
@@ -13,6 +11,14 @@ class RetryError extends Error {
     this.message = `${type} failed after ${MAX_RETRIES} attempts with empty responses`
   }
 }
+
+class HttpError extends Error {
+  constructor (message, resp) {
+    super(message)
+    this.response = resp
+  }
+}
+
 const delay = async (time) => new Promise((resolve, reject) => setTimeout(resolve, time))
 
 let accessToken = null
@@ -57,25 +63,26 @@ async function authenticate (_retryCount = 1) {
       grant_type: 'client_credentials'
     }
 
-    const auth = {
-      username: credsKey,
-      password: credsSecret
-    }
+    const path = credsBase + 'token'
+    const creds = Buffer.from(`${credsKey}:${credsSecret}`).toString('base64')
 
     const options = {
       method: 'post',
-      data: qs.stringify(data),
-      auth,
-      url: credsBase + 'token'
+      body: JSON.stringify(data),
+      headers: {
+        Authorization: `Basic ${creds}`
+      }
     }
+
     let response
     try {
-      response = await axios(options)
+      response = await fetch(path, options)
+      const json = await response.json()
       // check for mysterious empty 200 response from Sierra API and retry auth
-      if (response.data === '' && response.status < 300 && response.status >= 200) {
+      if (json === '' && response.status < 300 && response.status >= 200) {
         await _retryAuth(_retryCount)
       } else {
-        accessToken = response.data.access_token
+        accessToken = json.access_token
       }
     } catch (e) {
       // maxed out Retries
@@ -90,7 +97,7 @@ async function get (path, _retryCount = 1) {
   try {
     const response = await _doHttpRequest('get', path)
     if (response.data === '' && response.status < 300 && response.status >= 200) {
-      await _retryGet(path, _retryCount)
+      return await _retryGet(path, _retryCount)
     } else {
       return response.data
     }
@@ -142,7 +149,7 @@ async function _retryGet (path, _retryCount) {
   if (_retryCount <= MAX_RETRIES) {
     logger.warning(`Get request retry #${_retryCount} due to empty response from Sierra API`)
     await delay(1000 * Math.pow(2, _retryCount - 1))
-    await get(path, _retryCount + 1)
+    return await get(path, _retryCount + 1)
   } else {
     const error = new RetryError('Get request')
     logger.error(error.message)
@@ -164,14 +171,18 @@ async function _handleAuthError (method, path, data) {
 
 async function _doHttpRequest (method, path, data) {
   await authenticate()
-  const response = await axios({
+  const options = {
     method,
-    url: credsBase + path,
-    data,
-    timeout: 120 * 1000,
+    signal: AbortSignal.timeout(5000),
     headers: { Authorization: `Bearer ${accessToken}` }
-  })
-  return response
+  }
+  if (data) { options.body = JSON.stringify(data) }
+  const response = await fetch(credsBase + path, options)
+  const json = await response.json()
+  if (response.status >= 400) {
+    throw new HttpError('Http request error', response)
+  }
+  return { data: json, status: response.status }
 }
 
 async function _reauthenticate () {
@@ -236,5 +247,6 @@ module.exports = {
   _accessToken: () => accessToken,
   RetryError,
   _reauthenticate,
-  _retryAuth
+  _retryAuth,
+  _doHttpRequest
 }
