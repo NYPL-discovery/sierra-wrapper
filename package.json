@@ -50,9 +50,7 @@
     ".nvmrc",
     "CHANGELOG.md",
     "LICENSE",
-    "README.md",
     "index.js",
-    "logger.js",
-    "package.json"
+    "logger.js"
   ]
 }
